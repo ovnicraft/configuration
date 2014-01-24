@@ -55,7 +55,7 @@ EDXAPP_ZENDESK_API_KEY: ''
 EDXAPP_CELERY_USER: 'celery'
 EDXAPP_CELERY_PASSWORD: 'celery'
 
-EDXAPP_PLATFORM_NAME: 'edX'
+EDXAPP_PLATFORM_NAME: 'UPEx'
 
 EDXAPP_FEATURES:
   AUTH_USE_OPENID_PROVIDER: true
@@ -91,15 +91,15 @@ EDXAPP_CMS_NGINX_PORT: 18010
 EDXAPP_CMS_SSL_NGINX_PORT: 48010
 
 EDXAPP_LANG: 'en_US.UTF-8'
-EDXAPP_TIME_ZONE: 'America/New_York'
+EDXAPP_TIME_ZONE: 'America/Guayaquil'
 
-EDXAPP_TECH_SUPPORT_EMAIL: 'technical@example.com'
-EDXAPP_CONTACT_EMAIL: 'info@example.com'
-EDXAPP_BUGS_EMAIL: 'bugs@example.com'
-EDXAPP_DEFAULT_FROM_EMAIL: 'registration@example.com'
-EDXAPP_DEFAULT_FEEDBACK_EMAIL: 'feedback@example.com'
-EDXAPP_DEFAULT_SERVER_EMAIL: 'devops@example.com'
-EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: 'no-reply@example.com'
+EDXAPP_TECH_SUPPORT_EMAIL: 'laboratorio@iaen.edu.ec'
+EDXAPP_CONTACT_EMAIL: 'laboratorio@iaen.edu.ec'
+EDXAPP_BUGS_EMAIL: 'laboratorio@iaen.edu.ec'
+EDXAPP_DEFAULT_FROM_EMAIL: 'laboratorio@iaen.edu.ec'
+EDXAPP_DEFAULT_FEEDBACK_EMAIL: 'laboratorio@iaen.edu.ec'
+EDXAPP_DEFAULT_SERVER_EMAIL: 'laboratorio@iaen.edu.ec'
+EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: 'laboratorio@iaen.edu.ec'
 
 EDXAPP_ENV_EXTRA: {}
 EDXAPP_AUTH_EXTRA: {}
