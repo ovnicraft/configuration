@@ -2,7 +2,13 @@
   hosts: all
   sudo: True
   gather_facts: True
-  vars_files:
-    - ["{{ secure_vars }}", "dummy.yml"]
+  vars:
+    enable_datadog: True
+    enable_splunkforwarder: True
   roles:
+    - aws
     - certs
+    - role: datadog
+      when: enable_datadog
+    - role: splunkforwarder
+      when: enable_splunkforwarder
