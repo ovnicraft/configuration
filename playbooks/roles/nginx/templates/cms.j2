@@ -1,3 +1,9 @@
+{%- if "cms" in nginx_default_sites -%}
+  {%- set default_site = "default" -%}
+{%- else -%}
+  {%- set default_site = "" -%}
+{%- endif -%}
+
 upstream cms-backend {
     {% for host in nginx_cms_gunicorn_hosts %}
         server {{ host }}:{{ edxapp_cms_gunicorn_port }} fail_timeout=0;
@@ -9,18 +15,20 @@ server {
       
   {% if NGINX_ENABLE_SSL %}
 
-  listen {{EDXAPP_CMS_NGINX_PORT}};
+  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
   listen {{EDXAPP_CMS_SSL_NGINX_PORT}} ssl;
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
   ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
+  # request the browser to use SSL for all connections
+  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
   {% else %}
-  listen {{EDXAPP_CMS_NGINX_PORT}} default;
+  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
   {% endif %}
 
 
-  server_name studio.*;
+  server_name ~^((stage|prod)-)?studio\..*;
 
   access_log {{ nginx_log_dir }}/access.log;
   error_log {{ nginx_log_dir }}/error.log error;
@@ -31,6 +39,7 @@ server {
   client_max_body_size 100M;
   
   rewrite ^(.*)/favicon.ico$ /static/images/favicon.ico last;
+
 
   location @proxy_to_cms_app {
     proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
@@ -67,6 +76,14 @@ server {
     location ~ ^/static/(?:.*)(?:\.xml|\.json|README.TXT) {
         return 403;
     }
+
+    # http://www.red-team-design.com/firefox-doesnt-allow-cross-domain-fonts-by-default
+    location ~ "/static/(?P<collected>.*\.[0-9a-f]{12}\.(eot|otf|ttf|woff))" {
+        expires max;
+        add_header Access-Control-Allow-Origin *;
+        try_files /staticfiles/$collected /course_static/$collected =404;
+    }
+
     # Set django-pipelined files to maximum cache time
     location ~ "/static/(?P<collected>.*\.[0-9a-f]{12}\..*)" {
         expires max;

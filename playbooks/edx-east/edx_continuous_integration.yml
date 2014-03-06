@@ -7,6 +7,7 @@
     migrate_db: "yes"
     openid_workaround: True
   roles:
+    - aws
     - role: nginx
       nginx_sites:
       - cms
@@ -14,13 +15,15 @@
       - ora
       - xqueue
       - xserver
+      nginx_default_sites:
+      - lms
     - edxlocal
     - mongo
+    - { role: 'edxapp', celery_worker: True }
     - edxapp
     - role: demo
       tags: ['demo']
     - { role: 'rabbitmq', rabbitmq_ip: '127.0.0.1' }
-    - { role: 'edxapp', celery_worker: True }
     - oraclejdk
     - elasticsearch
     - forum
