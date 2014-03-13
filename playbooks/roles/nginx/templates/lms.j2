@@ -101,4 +101,14 @@ server {
   if ($do_redirect = "true") {
     rewrite ^ https://$host$request_uri? permanent;
   }
+
+  # Video streaming support
+  #location ~ .mp4$ {
+  #  mp4;
+  #  mp4_buffer_size       1m;
+  #  mp4_max_buffer_size   5m;
+  #  # This directives is available as part of our commercial subscription only
+  #  # mp4_limit_rate        on;
+  #  # mp4_limit_rate_after  30s;
+  #}
 }
