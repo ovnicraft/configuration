@@ -337,6 +337,10 @@ EDXAPP_LOCAL_GIT_IDENTITY: $secure_identity
 # this is so that the application can come
 # up healthy
 fake_migrations: true
+
+# Use the build number an the dynamic cache key.
+EDXAPP_UPDATE_STATIC_FILES_KEY: true
+edxapp_dynamic_cache_key: {deployment}-{environment}-{play}-{build_id}
 EOF
 
 chmod 400 $secure_identity
@@ -377,7 +381,8 @@ rm -rf $base_dir
                 queue_name=run_id,
                 extra_vars_yml=extra_vars_yml,
                 git_refs_yml=git_refs_yml,
-                secure_vars=secure_vars)
+                secure_vars=secure_vars,
+                build_id=args.jenkins_build)
 
     ec2_args = {
         'security_group_ids': [security_group_id],
@@ -516,21 +521,33 @@ def create_ami(instance_id, name, description):
               'description': description,
               'no_reboot': True}
 
+    AWS_API_WAIT_TIME = 1
     image_id = ec2.create_image(**params)
+    print("Checking if image is ready.")
     for _ in xrange(AMI_TIMEOUT):
         try:
             img = ec2.get_image(image_id)
             if img.state == 'available':
+                print("Tagging image.")
                 img.add_tag("environment", args.environment)
+                time.sleep(AWS_API_WAIT_TIME)
                 img.add_tag("deployment", args.deployment)
+                time.sleep(AWS_API_WAIT_TIME)
                 img.add_tag("play", args.play)
+                time.sleep(AWS_API_WAIT_TIME)
                 img.add_tag("configuration_ref", args.configuration_version)
+                time.sleep(AWS_API_WAIT_TIME)
                 img.add_tag("configuration_secure_ref", args.configuration_secure_version)
+                time.sleep(AWS_API_WAIT_TIME)
                 img.add_tag("configuration_secure_repo", args.configuration_secure_repo)
+                time.sleep(AWS_API_WAIT_TIME)
                 img.add_tag("build_id", args.jenkins_build)
+                time.sleep(AWS_API_WAIT_TIME)
                 for repo,ref in git_refs.items():
                     key = "vars:{}".format(repo)
                     img.add_tag(key, ref)
+                    time.sleep(AWS_API_WAIT_TIME)
+                break
             else:
                 time.sleep(1)
         except EC2ResponseError as e:
