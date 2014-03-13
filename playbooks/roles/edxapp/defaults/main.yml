@@ -12,8 +12,8 @@
 # Defaults specified here should not contain
 # any secrets or host identifying information.
 
-EDXAPP_LMS_BASE: 'upex.iaen.edu.ec'
-EDXAPP_PREVIEW_LMS_BASE: 'upex.iaen.edu.ec'
+EDXAPP_LMS_BASE: 'mooc.iaen.edu.ec'
+EDXAPP_PREVIEW_LMS_BASE: 'mooc.iaen.edu.ec'
 EDXAPP_CMS_BASE: 'cms.iaen.edu.ec'
 EDXAPP_AWS_ACCESS_KEY_ID:  ''
 EDXAPP_AWS_SECRET_ACCESS_KEY:  ''
@@ -58,7 +58,7 @@ EDXAPP_ZENDESK_API_KEY: ''
 EDXAPP_CELERY_USER: 'celery'
 EDXAPP_CELERY_PASSWORD: 'celery'
 
-EDXAPP_PLATFORM_NAME: 'UPEx'
+EDXAPP_PLATFORM_NAME: 'MOOC IAEN'
 
 EDXAPP_CAS_SERVER_URL: ''
 EDXAPP_CAS_EXTRA_LOGIN_PARAMS: ''
@@ -99,13 +99,13 @@ EDXAPP_CMS_SSL_NGINX_PORT: 48010
 EDXAPP_LANG: 'en_US.UTF-8'
 EDXAPP_TIME_ZONE: 'America/Guayaquil'
 
-EDXAPP_TECH_SUPPORT_EMAIL: 'laboratorio@iaen.edu.ec'
-EDXAPP_CONTACT_EMAIL: 'laboratorio@iaen.edu.ec'
-EDXAPP_BUGS_EMAIL: 'laboratorio@iaen.edu.ec'
-EDXAPP_DEFAULT_FROM_EMAIL: 'laboratorio@iaen.edu.ec'
-EDXAPP_DEFAULT_FEEDBACK_EMAIL: 'laboratorio@iaen.edu.ec'
-EDXAPP_DEFAULT_SERVER_EMAIL: 'laboratorio@iaen.edu.ec'
-EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: 'laboratorio@iaen.edu.ec'
+EDXAPP_TECH_SUPPORT_EMAIL: 'mooc-tech@iaen.edu.ec'
+EDXAPP_CONTACT_EMAIL: 'mooc-contact@iaen.edu.ec'
+EDXAPP_BUGS_EMAIL: 'mooc-bugs@iaen.edu.ec'
+EDXAPP_DEFAULT_FROM_EMAIL: 'mooc-contact@iaen.edu.ec'
+EDXAPP_DEFAULT_FEEDBACK_EMAIL: 'mooc-contact@iaen.edu.ec'
+EDXAPP_DEFAULT_SERVER_EMAIL: 'mooc-noreply@iaen.edu.ec'
+EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: 'mooc-noreply@iaen.edu.ec'
 
 EDXAPP_ENV_EXTRA: {}
 EDXAPP_AUTH_EXTRA: {}
