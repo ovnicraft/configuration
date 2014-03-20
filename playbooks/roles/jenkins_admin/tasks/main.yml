@@ -39,8 +39,8 @@
 - fail: "JENKINS_ADMIN_CONFIGURATION_SECURE_REPO is not defined."
   when: JENKINS_ADMIN_CONFIGURATION_SECURE_REPO is not defined
 
-- fail: "JENKINS_ADMIN_GIT_KEY_LOCAL_PATH is not defined."
-  when: JENKINS_ADMIN_GIT_KEY_LOCAL_PATH is not defined
+- fail: "JENKINS_ADMIN_GIT_KEY is not defined."
+  when: JENKINS_ADMIN_GIT_KEY is not defined
 
 - fail: "JENKINS_ADMIN_EC2_KEY is not defined."
   when: JENKINS_ADMIN_EC2_KEY is not defined
@@ -88,7 +88,7 @@
 
 - name: drop the secure credentials
   copy: >
-    src={{JENKINS_ADMIN_GIT_KEY_LOCAL_PATH}}
+    content="{{ JENKINS_ADMIN_GIT_KEY }}"
     dest={{jenkins_home}}/.ssh/id_rsa
     owner={{jenkins_user}}
     group={{jenkins_group}}
@@ -131,3 +131,7 @@
     content="{{ jenkins_user }} ALL=({{ jenkins_user }}) NOPASSWD:ALL"
     dest=/etc/sudoers.d/99-jenkins owner=root group=root
     mode=0440 validate='visudo -cf %s'
+
+- name: install global gem dependencies
+  gem: name={{ item.name }} state=present version={{ item.version }}
+  with_items: jenkins_admin_gem_pkgs
