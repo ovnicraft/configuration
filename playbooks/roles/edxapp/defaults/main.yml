@@ -31,9 +31,12 @@ EDXAPP_MONGO_DB_NAME: 'edxapp'
 
 EDXAPP_MYSQL_DB_NAME: 'edxapp'
 EDXAPP_MYSQL_USER: 'edxapp001'
+EDXAPP_MYSQL_USER_ADMIN: 'root'
+EDXAPP_MYSQL_USER_MIGRATE: 'migrate'
 EDXAPP_MYSQL_PASSWORD: 'password'
 EDXAPP_MYSQL_PASSWORD_READ_ONLY: 'password'
 EDXAPP_MYSQL_PASSWORD_ADMIN: 'password'
+EDXAPP_MYSQL_PASSWORD_MIGRATE: 'password'
 
 EDXAPP_MYSQL_HOST: 'localhost'
 EDXAPP_MYSQL_PORT: '3306'
@@ -62,6 +65,8 @@ EDXAPP_PLATFORM_NAME: 'MOOC IAEN'
 
 EDXAPP_CAS_SERVER_URL: ''
 EDXAPP_CAS_EXTRA_LOGIN_PARAMS: ''
+EDXAPP_CAS_ATTRIBUTE_CALLBACK: ''
+EDXAPP_CAS_ATTRIBUTE_PACKAGE: ''
 
 EDXAPP_FEATURES:
   AUTH_USE_OPENID_PROVIDER: true
@@ -110,6 +115,7 @@ EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: 'upex-noreply@iaen.edu.ec'
 EDXAPP_ENV_EXTRA: {}
 EDXAPP_AUTH_EXTRA: {}
 EDXAPP_MKTG_URL_LINK_MAP: {}
+EDXAPP_MKTG_URLS: {}
 # Set this sets the url for static files
 # Override this var to use a CDN
 # Example: xxxxx.cloudfront.net/static/
@@ -147,8 +153,9 @@ EDXAPP_AUTOMATOR_SUDO_CMDS:
 - "ALL=({{ common_web_user }})  NOPASSWD:SETENV:{{ COMMON_BIN_DIR }}/python.edxapp {{ COMMON_BIN_DIR }}/manage.edxapp lms transfer_students *"
 
 EDXAPP_USE_GIT_IDENTITY: false
-# Example: "{{ secure_dir }}/files/git-identity"
-EDXAPP_LOCAL_GIT_IDENTITY: !!null
+# Paste the contents of the git identity
+# into this var
+EDXAPP_GIT_IDENTITY: !!null
 
 # Configuration for database migration
 EDXAPP_TEST_MIGRATE_DB_NAME: "{{ COMMON_ENVIRONMENT }}_{{ COMMON_DEPLOYMENT }}_test_{{ EDXAPP_MYSQL_DB_NAME }}"
@@ -178,7 +185,7 @@ edxapp_staticfile_dir: "{{ edxapp_data_dir }}/staticfiles"
 edxapp_course_data_dir: "{{ edxapp_data_dir }}/data"
 edxapp_upload_dir: "{{ edxapp_data_dir }}/uploads"
 edxapp_theme_dir: "{{ edxapp_data_dir }}/themes"
-edxapp_git_identity: "{{ edxapp_app_dir }}/{{ EDXAPP_LOCAL_GIT_IDENTITY|basename }}"
+edxapp_git_identity: "{{ edxapp_app_dir }}/edxapp-git-identity"
 edxapp_git_ssh: "/tmp/edxapp_git_ssh.sh"
 edxapp_pypi_local_mirror: "http://localhost:{{ devpi_port }}/root/pypi/+simple"
 edxapp_workers:
@@ -339,6 +346,7 @@ generic_env_config:  &edxapp_generic_env
   FEEDBACK_SUBMISSION_EMAIL: $EDXAPP_FEEDBACK_SUBMISSION_EMAIL
   TIME_ZONE: $EDXAPP_TIME_ZONE
   MKTG_URL_LINK_MAP: $EDXAPP_MKTG_URL_LINK_MAP
+  MKTG_URLS: $EDXAPP_MKTG_URLS
   # repo root for courses
   GITHUB_REPO_ROOT: $edxapp_course_data_dir
   CACHES:
@@ -380,6 +388,7 @@ generic_env_config:  &edxapp_generic_env
   BULK_EMAIL_DEFAULT_FROM_EMAIL: $EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL
   CAS_SERVER_URL: $EDXAPP_CAS_SERVER_URL
   CAS_EXTRA_LOGIN_PARAMS: $EDXAPP_CAS_EXTRA_LOGIN_PARAMS
+  CAS_ATTRIBUTE_CALLBACK: $EDXAPP_CAS_ATTRIBUTE_CALLBACK
 
 lms_auth_config:
   <<: *edxapp_generic_auth
