@@ -16,9 +16,9 @@ cd /edx/app/edx_ansible/edx_ansible/playbooks
 # The vagrant-devstack.yml playbook will also do this, but only
 # after loading the playbooks into memory.  If these are out of date,
 # this can cause problems (e.g. looking for templates that no longer exist).
-/edx/bin/update configuration master
+/edx/bin/update configuration release
 
-ansible-playbook -i localhost, -c local vagrant-devstack.yml --tags=deploy
+ansible-playbook -i localhost, -c local vagrant-devstack.yml --tags=deploy -e configuration_version=release
 SCRIPT
 
 edx_platform_mount_dir = "edx-platform"
@@ -36,8 +36,8 @@ end
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Creates an edX devstack VM from an official release
-  config.vm.box     = "gugelhupf-devstack"
-  config.vm.box_url = "http://files.edx.org/vagrant-images/20140210-gugelhupf-devstack.box"
+  config.vm.box     = "himbasha-devstack"
+  config.vm.box_url = "http://files.edx.org/vagrant-images/20140325-himbasha-devstack.box"
 
   config.vm.network :private_network, ip: "192.168.33.10"
   config.vm.network :forwarded_port, guest: 8000, host: 8000
@@ -61,6 +61,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     # http://askubuntu.com/questions/238040/how-do-i-fix-name-service-for-vagrant-client
     vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
+ 
+  # Use vagrant-vbguest plugin to make sure Guest Additions are in sync
+  config.vbguest.auto_reboot = true
+  config.vbguest.auto_update = true
 
   # Assume that the base box has the edx_ansible role installed
   # We can then tell the Vagrant instance to update itself.

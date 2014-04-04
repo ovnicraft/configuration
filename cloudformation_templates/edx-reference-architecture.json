@@ -177,29 +177,6 @@
       ],
       "ConstraintDescription":"must be a valid EC2 instance type."
     },
-    "XqueueInstanceType":{
-      "Description":"Xqueue server EC2 instance type",
-      "Type":"String",
-      "Default":"m1.small",
-      "AllowedValues":[
-        "t1.micro",
-        "m1.small",
-        "m1.medium",
-        "m1.large",
-        "m1.xlarge",
-        "m2.xlarge",
-        "m2.2xlarge",
-        "m2.4xlarge",
-        "m3.xlarge",
-        "m3.2xlarge",
-        "c1.medium",
-        "c1.xlarge",
-        "cc1.4xlarge",
-        "cc2.8xlarge",
-        "cg1.4xlarge"
-      ],
-      "ConstraintDescription":"must be a valid EC2 instance type."
-    },
     "SSHLocation":{
       "Description":"The IP address range that can be used to SSH to the EC2 instances",
       "Type":"String",
@@ -287,11 +264,6 @@
     },
     "EdxappDesiredCapacity":{
       "Description":"The Auto-scaling group desired capacity for the edxapp hosts",
-      "Type":"Number",
-      "Default":"2"
-    },
-    "XqueueDesiredCapacity":{
-      "Description":"The Auto-scaling group desired capacity for the xqueue hosts",
       "Type":"Number",
       "Default":"2"
     },
@@ -471,8 +443,6 @@
       "Edxapp02":        { "CIDR":".11.0/24" },
       "XServerJail01":   { "CIDR":".20.0/24" },
       "XServerJail02":   { "CIDR":".21.0/24" },
-      "Xqueue01":        { "CIDR":".30.0/24" },
-      "Xqueue02":        { "CIDR":".31.0/24" },
       "CommonCluster01": { "CIDR":".46.0/24"},
       "CommonCluster02": { "CIDR":".47.0/24"},
       "CommonCluster03": { "CIDR":".48.0/24"},
@@ -715,102 +685,6 @@
 				  {"Ref":"DeploymentTag"},
 				  "-",
 				  "internal-edxapp','target':'ec2'}"
-				 ]
-				]
-		    }
-          }
-        ]
-      }
-    },
-    "XqueueSubnet01":{
-      "Type":"AWS::EC2::Subnet",
-      "Properties":{
-        "VpcId":{
-          "Ref":"EdxVPC"
-        },
-        "CidrBlock":{
-          "Fn::Join": ["", [
-            "10.", { "Ref": "ClassB"},
-            {"Fn::FindInMap":[
-              "SubnetConfig",
-              "Xqueue01",
-              "CIDR"
-            ]}
-          ]]
-        },
-        "AvailabilityZone":{
-          "Fn::FindInMap":[
-            "MapRegionsToAvailZones",
-            { "Ref":"AWS::Region" },
-            "AZone0"
-          ]
-        },
-        "Tags":[
-          {
-            "Key":"play",
-            "Value":"xqueue"
-          },
-          {
-            "Key":"Network",
-            "Value":"Private"
-          },
-          {
-            "Key" : "immutable_metadata",
-            "Value":{"Fn::Join":["",
-				 ["{'purpose':'",
-				  {"Ref":"EnvironmentTag"},
-				  "-",
-				  {"Ref":"DeploymentTag"},
-				  "-",
-				  "internal-xqueue','target':'ec2'}"
-				 ]
-				]
-		    }
-          }
-        ]
-      }
-    },
-    "XqueueSubnet02":{
-      "Type":"AWS::EC2::Subnet",
-      "Properties":{
-        "VpcId":{
-          "Ref":"EdxVPC"
-        },
-        "CidrBlock":{
-          "Fn::Join": ["", [
-            "10.", { "Ref": "ClassB"},
-            {"Fn::FindInMap":[
-              "SubnetConfig",
-              "Xqueue02",
-              "CIDR"
-            ]}
-          ]]
-        },
-        "AvailabilityZone":{
-          "Fn::FindInMap":[
-            "MapRegionsToAvailZones",
-            { "Ref":"AWS::Region" },
-            "AZone1"
-          ]
-        },
-        "Tags":[
-          {
-            "Key":"play",
-            "Value":"xqueue"
-          },
-          {
-            "Key":"Network",
-            "Value":"Private"
-          },
-          {
-            "Key" : "immutable_metadata",
-            "Value":{"Fn::Join":["",
-				 ["{'purpose':'",
-				  {"Ref":"EnvironmentTag"},
-				  "-",
-				  {"Ref":"DeploymentTag"},
-				  "-",
-				  "internal-xqueue','target':'ec2'}"
 				 ]
 				]
 		    }
@@ -1926,28 +1800,6 @@
         }
       }
     },
-    "PrivateSubnetRouteTableAssociationXqueue01":{
-      "Type":"AWS::EC2::SubnetRouteTableAssociation",
-      "Properties":{
-        "SubnetId":{
-          "Ref":"XqueueSubnet01"
-        },
-        "RouteTableId":{
-          "Ref":"PrivateRouteTable"
-        }
-      }
-    },
-    "PrivateSubnetRouteTableAssociationXqueue02":{
-      "Type":"AWS::EC2::SubnetRouteTableAssociation",
-      "Properties":{
-        "SubnetId":{
-          "Ref":"XqueueSubnet02"
-        },
-        "RouteTableId":{
-          "Ref":"PrivateRouteTable"
-        }
-      }
-    },
     "PrivateSubnetRouteTableAssociationCommonCluster01":{
       "Type":"AWS::EC2::SubnetRouteTableAssociation",
       "Properties":{
@@ -2216,28 +2068,6 @@
       "Properties":{
         "SubnetId":{
           "Ref":"EdxappSubnet02"
-        },
-        "NetworkAclId":{
-          "Ref":"PrivateNetworkAcl"
-        }
-      }
-    },
-    "PrivateSubnetNetworkAclAssociationXqueue01":{
-      "Type":"AWS::EC2::SubnetNetworkAclAssociation",
-      "Properties":{
-        "SubnetId":{
-          "Ref":"XqueueSubnet01"
-        },
-        "NetworkAclId":{
-          "Ref":"PrivateNetworkAcl"
-        }
-      }
-    },
-    "PrivateSubnetNetworkAclAssociationXqueue02":{
-      "Type":"AWS::EC2::SubnetNetworkAclAssociation",
-      "Properties":{
-        "SubnetId":{
-          "Ref":"XqueueSubnet02"
         },
         "NetworkAclId":{
           "Ref":"PrivateNetworkAcl"
@@ -2726,7 +2556,7 @@
           "mkdir -p /opt/edx/bin\n",
           "cd /opt\n",
           "apt-get update\n",
-          "apt-get install openjdk-6-jre-headless unzip -y\n",
+          "apt-get install openjdk-6-jre-headless unzip -y --force-yes\n",
           "wget http://s3.amazonaws.com/ec2-downloads/ec2-api-tools.zip\n",
           "unzip ec2-api-tools.zip\n",
           "rm ec2-api-tools.zip\n",
@@ -2875,6 +2705,12 @@
           },
           {
             "IpProtocol":"tcp",
+            "FromPort":"15672",
+            "ToPort":"15672",
+            "CidrIp": { "Fn::Join": ["", ["10.", { "Ref": "ClassB" }, { "Fn::FindInMap": [ "SubnetConfig", "VPC", "CIDR"]}]]}
+          },
+          {
+            "IpProtocol":"tcp",
             "FromPort":"80",
             "ToPort":"80",
             "CidrIp":"0.0.0.0/0"
@@ -2918,7 +2754,9 @@
                       "s3:Put",
                       "ses:SendEmail",
                       "ses:SendRawEmail",
-                      "ses:GetSendQuota"
+                      "ses:GetSendQuota",
+                      "ec2:DescribeInstances",
+                      "ec2:DescribeTags"
                     ],
                     "Resource":"*"
                   }
@@ -2936,30 +2774,6 @@
             } ]
         }
     },
-		"XqueueRole": {
-				"Type": "AWS::IAM::Role",
-        "Properties": {
-						"AssumeRolePolicyDocument": {
-								"Statement": [ {
-										"Effect": "Allow",
-										"Principal": {
-												"Service": [ "ec2.amazonaws.com" ]
-										},
-										"Action": [ "sts:AssumeRole" ]
-								} ]
-            },
-            "Path": "/"
-        }
-    },
-	  "XqueueInstanceProfile": {
-        "Type": "AWS::IAM::InstanceProfile",
-        "Properties": {
-            "Path": "/",
-            "Roles": [ {
-								"Ref": "XqueueRole"
-            } ]
-        }
-    },
 		"XServerRole": {
 				"Type": "AWS::IAM::Role",
         "Properties": {
@@ -2972,7 +2786,26 @@
 										"Action": [ "sts:AssumeRole" ]
 								} ]
             },
-            "Path": "/"
+            "Path": "/",
+            "Policies": [ {
+              "PolicyName": "XServerBasePolicy",
+              "PolicyDocument": {
+                "Statement":[
+                  {
+                    "Effect":"Allow",
+                    "Action":[
+                      "cloudformation:DescribeStackResource",
+                      "ses:SendEmail",
+                      "ses:SendRawEmail",
+                      "ses:GetSendQuota",
+                      "ec2:DescribeInstances",
+                      "ec2:DescribeTags"
+                    ],
+                    "Resource":"*"
+                  }
+                ]
+              }
+            } ]
         }
     },
 	  "XServerInstanceProfile": {
@@ -2981,6 +2814,49 @@
             "Path": "/",
             "Roles": [ {
 								"Ref": "XServerRole"
+            } ]
+        }
+    },
+    "ForumRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+            "AssumeRolePolicyDocument": {
+                "Statement": [ {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": [ "ec2.amazonaws.com" ]
+                    },
+                    "Action": [ "sts:AssumeRole" ]
+                } ]
+            },
+            "Path": "/",
+            "Policies": [ {
+              "PolicyName": "ForumBasePolicy",
+              "PolicyDocument": {
+                "Statement":[
+                  {
+                    "Effect":"Allow",
+                    "Action":[
+                      "cloudformation:DescribeStackResource",
+                      "ses:SendEmail",
+                      "ses:SendRawEmail",
+                      "ses:GetSendQuota",
+                      "ec2:DescribeInstances",
+                      "ec2:DescribeTags"
+                    ],
+                    "Resource":"*"
+                  }
+                ]
+              }
+            } ]
+        }
+    },
+    "ForumInstanceProfile": {
+        "Type": "AWS::IAM::InstanceProfile",
+        "Properties": {
+            "Path": "/",
+            "Roles": [ {
+                "Ref": "ForumRole"
             } ]
         }
     },
@@ -3045,7 +2921,7 @@
         ]
       }
     },
-    "EdxappServerASGroup":{
+    "EdxappServerAsGroup":{
       "Type":"AWS::AutoScaling::AutoScalingGroup",
       "Properties":{
         "AvailabilityZones":[
@@ -3079,6 +2955,11 @@
           {
             "Key":"play",
             "Value":"edxapp",
+            "PropagateAtLaunch":true
+          },
+          {
+            "Key":"services",
+            "Value":"edxapp,lms,cms",
             "PropagateAtLaunch":true
           },
           {
@@ -3120,7 +3001,7 @@
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"EdxappServerASGroup"
+          "Ref":"EdxappServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"1"
@@ -3131,7 +3012,7 @@
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"EdxappServerASGroup"
+          "Ref":"EdxappServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"-1"
@@ -3156,7 +3037,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"EdxappServerASGroup"
+              "Ref":"EdxappServerAsGroup"
             }
           }
         ],
@@ -3182,7 +3063,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"EdxappServerASGroup"
+              "Ref":"EdxappServerAsGroup"
             }
           }
         ],
@@ -3326,192 +3207,6 @@
         ]
       }
     },
-    "XqueueServer":{
-      "Type":"AWS::AutoScaling::LaunchConfiguration",
-      "Properties":{
-				"IamInstanceProfile":{ "Ref":"XqueueInstanceProfile" },
-        "SecurityGroups":[
-          {
-            "Ref":"XqueueServerSecurityGroup"
-          }
-        ],
-        "ImageId":{
-          "Fn::FindInMap":[
-            "AWSRegionArch2AMI",
-            {
-              "Ref":"AWS::Region"
-            },
-            {
-              "Fn::FindInMap":[
-                "AWSInstanceType2Arch",
-                {
-                  "Ref":"XqueueInstanceType"
-                },
-                "Arch"
-              ]
-            }
-          ]
-        },
-        "KeyName":{
-          "Ref":"KeyName"
-        },
-        "InstanceType":{
-          "Ref":"XqueueInstanceType"
-        },
-        "BlockDeviceMappings":[
-          {
-            "DeviceName":"/dev/sda1",
-            "Ebs":{
-              "VolumeSize":"100"
-            }
-          }
-        ]
-      }
-    },
-    "XqueueServerASGroup":{
-      "Type":"AWS::AutoScaling::AutoScalingGroup",
-      "Properties":{
-        "AvailabilityZones":[
-          {
-            "Fn::GetAtt":[
-              "XqueueSubnet01",
-              "AvailabilityZone"
-            ]
-          },
-          {
-            "Fn::GetAtt":[
-              "XqueueSubnet02",
-              "AvailabilityZone"
-            ]
-          }
-        ],
-        "VPCZoneIdentifier":[
-          {
-            "Ref":"XqueueSubnet01"
-          },
-          {
-            "Ref":"XqueueSubnet02"
-          }
-        ],
-        "Tags":[
-          {
-            "Key":"Name",
-            "Value": {"Fn::Join": ["-",[{"Ref": "EnvironmentTag"},{"Ref": "DeploymentTag"},"xqueue"]]},
-            "PropagateAtLaunch":true
-          },
-          {
-            "Key":"play",
-            "Value":"xqueue",
-            "PropagateAtLaunch":true
-          },
-          {
-            "Key":"environment",
-            "Value":{
-              "Ref":"EnvironmentTag"
-            },
-            "PropagateAtLaunch":true
-          },
-          {
-            "Key":"deployment",
-            "Value":{
-              "Ref":"DeploymentTag"
-            },
-            "PropagateAtLaunch":true
-          }
-        ],
-        "LaunchConfigurationName":{
-          "Ref":"XqueueServer"
-        },
-        "MinSize":{
-          "Ref":"XqueueDesiredCapacity"
-        },
-        "MaxSize":{
-          "Ref":"XqueueDesiredCapacity"
-        },
-        "DesiredCapacity":{
-          "Ref":"XqueueDesiredCapacity"
-        },
-        "LoadBalancerNames":[
-          {
-            "Ref":"XqueueELB"
-          }
-        ]
-      }
-    },
-    "XqueueScaleUpPolicy":{
-      "Type":"AWS::AutoScaling::ScalingPolicy",
-      "Properties":{
-        "AdjustmentType":"ChangeInCapacity",
-        "AutoScalingGroupName":{
-          "Ref":"XqueueServerASGroup"
-        },
-        "Cooldown":"60",
-        "ScalingAdjustment":"1"
-      }
-    },
-    "XqueueScaleDownPolicy":{
-      "Type":"AWS::AutoScaling::ScalingPolicy",
-      "Properties":{
-        "AdjustmentType":"ChangeInCapacity",
-        "AutoScalingGroupName":{
-          "Ref":"XqueueServerASGroup"
-        },
-        "Cooldown":"60",
-        "ScalingAdjustment":"-1"
-      }
-    },
-    "XqueueCPUAlarmHigh":{
-      "Type":"AWS::CloudWatch::Alarm",
-      "Properties":{
-        "AlarmDescription":"Scale-up if CPU > 90% for 10 minutes",
-        "MetricName":"CPUUtilization",
-        "Namespace":"AWS/EC2",
-        "Statistic":"Average",
-        "Period":"300",
-        "EvaluationPeriods":"2",
-        "Threshold":"90",
-        "AlarmActions":[
-          {
-            "Ref":"XqueueScaleUpPolicy"
-          }
-        ],
-        "Dimensions":[
-          {
-            "Name":"AutoScalingGroupName",
-            "Value":{
-              "Ref":"XqueueServerASGroup"
-            }
-          }
-        ],
-        "ComparisonOperator":"GreaterThanThreshold"
-      }
-    },
-    "XqueueCPUAlarmLow":{
-      "Type":"AWS::CloudWatch::Alarm",
-      "Properties":{
-        "AlarmDescription":"Scale-down if CPU < 70% for 10 minutes",
-        "MetricName":"CPUUtilization",
-        "Namespace":"AWS/EC2",
-        "Statistic":"Average",
-        "Period":"300",
-        "EvaluationPeriods":"2",
-        "Threshold":"70",
-        "AlarmActions":[
-          {
-            "Ref":"XqueueScaleDownPolicy"
-          }
-        ],
-        "Dimensions":[
-          {
-            "Name":"AutoScalingGroupName",
-            "Value":{
-              "Ref":"XqueueServerASGroup"
-            }
-          }
-        ],
-        "ComparisonOperator":"LessThanThreshold"
-      }
-    },
     "XqueueELB":{
       "Type":"AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties":{
@@ -3642,6 +3337,9 @@
           },
           {
             "Ref":"ElasticsearchServerSecurityGroup"
+          },
+          {
+            "Ref":"XqueueServerSecurityGroup"
           }
         ],
         "ImageId":{
@@ -3677,7 +3375,7 @@
         ]
       }
     },
-    "CommonClusterServerASGroup":{
+    "CommonClusterServerAsGroup":{
       "Type":"AWS::AutoScaling::AutoScalingGroup",
       "Properties":{
         "AvailabilityZones":[
@@ -3755,6 +3453,9 @@
           },
           {
             "Ref":"ElasticSearchELB"
+          },
+          {
+            "Ref":"XqueueELB"
           }
         ]
       }
@@ -3774,7 +3475,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"CommonClusterServerASGroup"
+              "Ref":"CommonClusterServerAsGroup"
             }
           }
         ],
@@ -3796,7 +3497,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"CommonClusterServerASGroup"
+              "Ref":"CommonClusterServerAsGroup"
             }
           }
         ],
@@ -4056,7 +3757,13 @@
             "FromPort":"6163",
             "ToPort":"6163",
             "SourceSecurityGroupId": { "Ref": "XqueueServerSecurityGroup" }
-          }
+          },
+          {
+            "IpProtocol":"tcp",
+            "FromPort":"5672",
+            "ToPort":"5672",
+            "SourceSecurityGroupId": { "Ref": "NotifierSecurityGroup" }
+	  }
         ],
         "SecurityGroupEgress":[
           {
@@ -4207,13 +3914,13 @@
         ]
       }
     },
-    "XServer":{
+    "XserverServer":{
       "Type":"AWS::AutoScaling::LaunchConfiguration",
       "Properties":{
         "IamInstanceProfile":{ "Ref":"XServerInstanceProfile" },
         "SecurityGroups":[
           {
-            "Ref":"XServerSecurityGroup"
+            "Ref":"XserverServerSecurityGroup"
           }
         ],
         "ImageId":{
@@ -4249,7 +3956,7 @@
         ]
       }
     },
-    "XServerASGroup":{
+    "XserverServerAsGroup":{
       "Type":"AWS::AutoScaling::AutoScalingGroup",
       "Properties":{
         "AvailabilityZones":[
@@ -4286,6 +3993,11 @@
             "PropagateAtLaunch":true
           },
           {
+            "Key":"services",
+            "Value":"xserver",
+            "PropagateAtLaunch":true
+          },
+          {
             "Key":"environment",
             "Value":{
               "Ref":"EnvironmentTag"
@@ -4301,7 +4013,7 @@
           }
         ],
         "LaunchConfigurationName":{
-          "Ref":"XServer"
+          "Ref":"XserverServer"
         },
         "MinSize":{
           "Ref":"XServerDesiredCapacity"
@@ -4319,23 +4031,23 @@
         ]
       }
     },
-    "XServerScaleUpPolicy":{
+    "XserverServerScaleUpPolicy":{
       "Type":"AWS::AutoScaling::ScalingPolicy",
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"XServerASGroup"
+          "Ref":"XserverServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"1"
       }
     },
-    "XServerScaleDownPolicy":{
+    "XserverServerScaleDownPolicy":{
       "Type":"AWS::AutoScaling::ScalingPolicy",
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"XServerASGroup"
+          "Ref":"XserverServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"-1"
@@ -4353,14 +4065,14 @@
         "Threshold":"90",
         "AlarmActions":[
           {
-            "Ref":"XServerScaleUpPolicy"
+            "Ref":"XserverServerScaleUpPolicy"
           }
         ],
         "Dimensions":[
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"XServerASGroup"
+              "Ref":"XserverServerAsGroup"
             }
           }
         ],
@@ -4379,14 +4091,14 @@
         "Threshold":"70",
         "AlarmActions":[
           {
-            "Ref":"XServerScaleDownPolicy"
+            "Ref":"XserverServerScaleDownPolicy"
           }
         ],
         "Dimensions":[
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"XServerASGroup"
+              "Ref":"XserverServerAsGroup"
             }
           }
         ],
@@ -4463,7 +4175,7 @@
         ]
       }
     },
-    "XServerSecurityGroup":{
+    "XserverServerSecurityGroup":{
       "Type":"AWS::EC2::SecurityGroup",
       "Properties":{
         "GroupDescription":"Open up SSH access plus XServer required ports",
@@ -4640,6 +4352,7 @@
     "WorkerServer":{
       "Type":"AWS::AutoScaling::LaunchConfiguration",
       "Properties":{
+				"IamInstanceProfile":{ "Ref":"EdxappInstanceProfile" },
         "SecurityGroups":[
           {
             "Ref":"WorkerServerSecurityGroup"
@@ -4678,7 +4391,7 @@
         ]
       }
     },
-    "WorkerServerASGroup":{
+    "WorkerServerAsGroup":{
       "Type":"AWS::AutoScaling::AutoScalingGroup",
       "Properties":{
         "AvailabilityZones":[
@@ -4715,6 +4428,11 @@
             "PropagateAtLaunch":true
           },
           {
+            "Key":"services",
+            "Value":"workers",
+            "PropagateAtLaunch":true
+          },
+          {
             "Key":"environment",
             "Value":{
               "Ref":"EnvironmentTag"
@@ -4748,7 +4466,7 @@
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"WorkerServerASGroup"
+          "Ref":"WorkerServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"1"
@@ -4759,7 +4477,7 @@
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"WorkerServerASGroup"
+          "Ref":"WorkerServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"-1"
@@ -4784,7 +4502,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"WorkerServerASGroup"
+              "Ref":"WorkerServerAsGroup"
             }
           }
         ],
@@ -4810,7 +4528,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"WorkerServerASGroup"
+              "Ref":"WorkerServerAsGroup"
             }
           }
         ],
@@ -4857,6 +4575,7 @@
     "ForumServer":{
       "Type":"AWS::AutoScaling::LaunchConfiguration",
       "Properties":{
+        "IamInstanceProfile":{ "Ref":"ForumInstanceProfile" },
         "SecurityGroups":[
           {
             "Ref":"ForumServerSecurityGroup"
@@ -4895,7 +4614,7 @@
         ]
       }
     },
-    "ForumServerASGroup":{
+    "ForumServerAsGroup":{
       "Type":"AWS::AutoScaling::AutoScalingGroup",
       "Properties":{
         "AvailabilityZones":[
@@ -4928,6 +4647,11 @@
           },
           {
             "Key":"play",
+            "Value":"forum",
+            "PropagateAtLaunch":true
+          },
+          {
+            "Key":"services",
             "Value":"forum",
             "PropagateAtLaunch":true
           },
@@ -4970,7 +4694,7 @@
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"ForumServerASGroup"
+          "Ref":"ForumServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"1"
@@ -4981,7 +4705,7 @@
       "Properties":{
         "AdjustmentType":"ChangeInCapacity",
         "AutoScalingGroupName":{
-          "Ref":"ForumServerASGroup"
+          "Ref":"ForumServerAsGroup"
         },
         "Cooldown":"60",
         "ScalingAdjustment":"-1"
@@ -5006,7 +4730,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"ForumServerASGroup"
+              "Ref":"ForumServerAsGroup"
             }
           }
         ],
@@ -5032,7 +4756,7 @@
           {
             "Name":"AutoScalingGroupName",
             "Value":{
-              "Ref":"ForumServerASGroup"
+              "Ref":"ForumServerAsGroup"
             }
           }
         ],
@@ -5286,7 +5010,7 @@
         ]
       }
     },
-    "MongoServerASGroup":{
+    "MongoServerAsGroup":{
       "Type":"AWS::AutoScaling::AutoScalingGroup",
       "Properties":{
         "AvailabilityZones":[

@@ -1,7 +1,15 @@
 - name: "writing supervisor script"
   template: >
-    src=xserver.conf.j2 dest={{ supervisor_cfg_dir }}/xserver.conf
+    src=xserver.conf.j2 dest={{ supervisor_available_dir }}/xserver.conf
     owner={{ supervisor_user }} group={{ common_web_user }} mode=0644
+
+- name: "enable supervisor script"
+  file: >
+    src={{ supervisor_available_dir }}/xserver.conf
+    dest={{ supervisor_cfg_dir }}/xserver.conf
+    owner={{ supervisor_user }} group={{ common_web_user }} mode=0644
+    state=link force=yes
+  when: not disable_edx_services
 
 - name: checkout code
   git: dest={{xserver_code_dir}} repo={{xserver_source_repo}} version={{xserver_version}}
@@ -9,12 +17,16 @@
   notify: restart xserver
 
 - name: install requirements
-  pip: requirements="{{xserver_requirements_file}}" virtualenv="{{ xserver_venv_dir }}" state=present
+  pip: >
+    requirements="{{xserver_requirements_file}}" virtualenv="{{ xserver_venv_dir }}" state=present
+    extra_args="-i {{ COMMON_PYPI_MIRROR_URL }}"
   sudo_user: "{{ xserver_user }}"
   notify: restart xserver
 
 - name: install sandbox requirements
-  pip: requirements="{{xserver_requirements_file}}" virtualenv="{{xserver_venv_sandbox_dir}}" state=present
+  pip: >
+    requirements="{{xserver_requirements_file}}" virtualenv="{{xserver_venv_sandbox_dir}}" state=present
+    extra_args="-i {{ COMMON_PYPI_MIRROR_URL }}"
   sudo_user: "{{ xserver_user }}"
   notify: restart xserver
 
@@ -23,25 +35,17 @@
   sudo_user: "{{ xserver_user }}"
   notify: restart xserver
 
-# Check to see if the identity file exists before copying.
-# This extra check is done to prevent failures when
-# ansible-playbook is run locally
-- stat: path={{ XSERVER_LOCAL_GIT_IDENTITY }}
-  register: xserver_identity
-
 - name: install read-only ssh key for the content repo that is required for grading
   copy: >
-    src={{ XSERVER_LOCAL_GIT_IDENTITY }} dest={{ xserver_git_identity }}
+    content="{{ XSERVER_GIT_IDENTITY }}" dest={{ xserver_git_identity }}
     owner={{ xserver_user }} group={{ xserver_user }} mode=0600
   notify: restart xserver
-  when: xserver_identity.stat.exists
 
 - name: upload ssh script
   template: >
     src=git_ssh.sh.j2 dest=/tmp/git_ssh.sh
     owner={{ xserver_user }} mode=750
   notify: restart xserver
-  when: xserver_identity.stat.exists
 
 - name: checkout grader code
   git: dest={{ XSERVER_GRADER_DIR }} repo={{ XSERVER_GRADER_SOURCE }} version={{ xserver_grader_version }}
@@ -49,12 +53,10 @@
     GIT_SSH: /tmp/git_ssh.sh
   notify: restart xserver
   sudo_user: "{{ xserver_user }}"
-  when: xserver_identity.stat.exists
 
 - name: remove read-only ssh key for the content repo
   file: path={{ xserver_git_identity }} state=absent
   notify: restart xserver
-  when: xserver_identity.stat.exists
 
   # call supervisorctl update. this reloads
   # the supervisorctl config and restarts
@@ -65,6 +67,7 @@
   shell:  "{{ supervisor_ctl }} -c {{ supervisor_cfg }} update"
   register: supervisor_update
   changed_when: supervisor_update.stdout != ""
+  when: not disable_edx_services
 
 - name: ensure xserver is started
   supervisorctl_local: >
@@ -72,6 +75,7 @@
     supervisorctl_path={{ supervisor_ctl }}
     config={{ supervisor_cfg }}
     state=started
+  when: not disable_edx_services
 
 - name: create a symlink for venv python
   file: >
