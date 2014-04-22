@@ -59,6 +59,10 @@ def parse_args():
     parser.add_argument('-p', '--play',
                         help='play name without the yml extension',
                         metavar="PLAY", required=True)
+    parser.add_argument('--playbook-dir',
+                        help='directory to find playbooks in',
+                        default='configuration/playbooks/edx-east',
+                        metavar="PLAYBOOKDIR", required=False)
     parser.add_argument('-d', '--deployment', metavar="DEPLOYMENT",
                         required=True)
     parser.add_argument('-e', '--environment', metavar="ENVIRONMENT",
@@ -71,9 +75,6 @@ def parse_args():
                         help="path to extra var file", required=False)
     parser.add_argument('--refs', metavar="GIT_REFS_FILE",
                         help="path to a var file with app git refs", required=False)
-    parser.add_argument('-a', '--application', required=False,
-                        help="Application for subnet, defaults to admin",
-                        default="admin")
     parser.add_argument('--configuration-version', required=False,
                         help="configuration repo branch(no hashes)",
                         default="master")
@@ -83,11 +84,14 @@ def parse_args():
     parser.add_argument('--configuration-secure-repo', required=False,
                         default="git@github.com:edx-ops/prod-secure",
                         help="repo to use for the secure files")
+    parser.add_argument('--configuration-private-version', required=False,
+                        help="configuration-private repo branch(no hashes)",
+                        default="master")
+    parser.add_argument('--configuration-private-repo', required=False,
+                        default="git@github.com:edx-ops/ansible-private",
+                        help="repo to use for private playbooks")
     parser.add_argument('-c', '--cache-id', required=True,
                         help="unique id to use as part of cache prefix")
-    parser.add_argument('-b', '--base-ami', required=False,
-                        help="ami to use as a base ami",
-                        default="ami-0568456c")
     parser.add_argument('-i', '--identity', required=False,
                         help="path to identity file for pulling "
                              "down configuration-secure",
@@ -108,6 +112,22 @@ def parse_args():
                         default=5,
                         help="How long to delay message display from sqs "
                              "to ensure ordering")
+    parser.add_argument("--hipchat-room-id", required=False,
+                        default=None,
+                        help="The API ID of the Hipchat room to post"
+                             "status messages to")
+    parser.add_argument("--hipchat-api-token", required=False,
+                        default=None,
+                        help="The API token for Hipchat integration")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-b', '--base-ami', required=False,
+                        help="ami to use as a base ami",
+                        default="ami-0568456c")
+    group.add_argument('--blessed', action='store_true',
+                        help="Look up blessed ami for env-dep-play.",
+                        default=False)
+
     return parser.parse_args()
 
 
@@ -126,6 +146,21 @@ def get_instance_sec_group(vpc_id):
 
     return grp_details[0].id
 
+def get_blessed_ami():
+    images = ec2.get_all_images(
+        filters={
+            'tag:environment': args.environment,
+            'tag:deployment': args.deployment,
+            'tag:play': args.play,
+            'tag:blessed': True
+        }
+    )
+
+    if len(images) != 1:
+        raise Exception("ERROR: Expected only one blessed ami, got {}\n".format(
+            len(images)))
+
+    return images[0].id
 
 def create_instance_args():
     """
@@ -168,6 +203,7 @@ secure_identity="$base_dir/secure-identity"
 git_ssh="$base_dir/git_ssh.sh"
 configuration_version="{configuration_version}"
 configuration_secure_version="{configuration_secure_version}"
+configuration_private_version="{configuration_private_version}"
 environment="{environment}"
 deployment="{deployment}"
 play="{play}"
@@ -176,6 +212,8 @@ git_repo_name="configuration"
 git_repo="https://github.com/edx/$git_repo_name"
 git_repo_secure="{configuration_secure_repo}"
 git_repo_secure_name="{configuration_secure_repo_basename}"
+git_repo_private="{configuration_private_repo}"
+git_repo_private_basename=$(basename $git_repo_private)
 secure_vars_file="$base_dir/$git_repo_secure_name/{secure_vars}"
 instance_id=\\
 $(curl http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null)
@@ -183,7 +221,7 @@ instance_ip=\\
 $(curl http://169.254.169.254/latest/meta-data/local-ipv4 2>/dev/null)
 instance_type=\\
 $(curl http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null)
-playbook_dir="$base_dir/configuration/playbooks/edx-east"
+playbook_dir="$base_dir/{playbook-dir}"
 
 if $config_secure; then
     git_cmd="env GIT_SSH=$git_ssh git"
@@ -261,6 +299,14 @@ if $config_secure; then
     cd $base_dir
 fi
 
+if [[ ! -z $git_repo_private ]]; then
+    $git_cmd clone $git_repo_private $git_repo_private_name
+    cd $git_repo_private_name
+    $git_cmd checkout $configuration_private_version
+    cd $base_dir
+fi
+
+
 cd $base_dir/$git_repo_name
 sudo pip install -r requirements.txt
 
@@ -292,7 +338,7 @@ rm -rf $base_dir
         'security_group_ids': [security_group_id],
         'subnet_id': subnet_id,
         'key_name': args.keypair,
-        'image_id': args.base_ami,
+        'image_id': base_ami,
         'instance_type': args.instance_type,
         'instance_profile_name': args.role_name,
         'user_data': user_data,
@@ -448,7 +494,7 @@ def create_ami(instance_id, name, description):
                 img.add_tag("cache_id", args.cache_id)
                 time.sleep(AWS_API_WAIT_TIME)
                 for repo, ref in git_refs.items():
-                    key = "vars:{}".format(repo)
+                    key = "refs:{}".format(repo)
                     img.add_tag(key, ref)
                     time.sleep(AWS_API_WAIT_TIME)
                 break
@@ -465,7 +511,6 @@ def create_ami(instance_id, name, description):
         raise Exception("Timeout waiting for AMI to finish")
 
     return image_id
-
 
 def launch_and_configure(ec2_args):
     """
@@ -556,6 +601,17 @@ def launch_and_configure(ec2_args):
 
     return run_summary, ami
 
+def send_hipchat_message(message):
+    #If hipchat is configured send the details to the specified room
+    if args.hipchat_api_token and args.hipchat_room_id:
+        import hipchat
+        try:
+            hipchat = hipchat.HipChat(token=args.hipchat_api_token)
+            hipchat.message_room(args.hipchat_room_id,'AbbeyNormal',
+               message)
+        except Exception as e:
+            print("Hipchat messaging resulted in an error: %s." % e)
+
 if __name__ == '__main__':
 
     args = parse_args()
@@ -597,6 +653,11 @@ if __name__ == '__main__':
         print 'You must be able to connect to sqs and ec2 to use this script'
         sys.exit(1)
 
+    if args.blessed:
+        base_ami = get_blessed_ami()
+    else:
+        base_ami = args.base_ami
+
     try:
         sqs_queue = None
         instance_id = None
@@ -620,6 +681,23 @@ if __name__ == '__main__':
                 print "{:<30} {:0>2.0f}:{:0>5.2f}".format(
                     run[0], run[1] / 60, run[1] % 60)
             print "AMI: {}".format(ami)
+
+            message = 'Finished baking AMI {image_id} for {environment} ' \
+              '{deployment} {play}.'.format(
+                    image_id=ami,
+                    environment=args.environment,
+                    deployment=args.deployment,
+                    play=args.play)
+
+            send_hipchat_message(message)
+    except Exception as e:
+        message = 'An error occurred building AMI for {environment} ' \
+            '{deployment} {play}.  The Exception was {exception}'.format(
+                environment=args.environment,
+                deployment=args.deployment,
+                play=args.play,
+                exception=repr(e))
+        send_hipchat_message(message)
     finally:
         print
         if not args.no_cleanup and not args.noop:
