@@ -11,6 +11,7 @@ try:
     from boto.vpc import VPCConnection
     from boto.exception import NoAuthHandlerFound, EC2ResponseError
     from boto.sqs.message import RawMessage
+    from boto.ec2.blockdevicemapping import BlockDeviceType, BlockDeviceMapping
 except ImportError:
     print "boto required for script"
     sys.exit(1)
@@ -59,6 +60,10 @@ def parse_args():
     parser.add_argument('-p', '--play',
                         help='play name without the yml extension',
                         metavar="PLAY", required=True)
+    parser.add_argument('--playbook-dir',
+                        help='directory to find playbooks in',
+                        default='configuration/playbooks/edx-east',
+                        metavar="PLAYBOOKDIR", required=False)
     parser.add_argument('-d', '--deployment', metavar="DEPLOYMENT",
                         required=True)
     parser.add_argument('-e', '--environment', metavar="ENVIRONMENT",
@@ -80,6 +85,12 @@ def parse_args():
     parser.add_argument('--configuration-secure-repo', required=False,
                         default="git@github.com:edx-ops/prod-secure",
                         help="repo to use for the secure files")
+    parser.add_argument('--configuration-private-version', required=False,
+                        help="configuration-private repo branch(no hashes)",
+                        default="master")
+    parser.add_argument('--configuration-private-repo', required=False,
+                        default="git@github.com:edx-ops/ansible-private",
+                        help="repo to use for private playbooks")
     parser.add_argument('-c', '--cache-id', required=True,
                         help="unique id to use as part of cache prefix")
     parser.add_argument('-i', '--identity', required=False,
@@ -109,6 +120,10 @@ def parse_args():
     parser.add_argument("--hipchat-api-token", required=False,
                         default=None,
                         help="The API token for Hipchat integration")
+    parser.add_argument("--root-vol-size", required=False,
+                        default=50,
+                        help="The size of the root volume to use for the "
+                             "abbey instance.")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('-b', '--base-ami', required=False,
@@ -193,6 +208,7 @@ secure_identity="$base_dir/secure-identity"
 git_ssh="$base_dir/git_ssh.sh"
 configuration_version="{configuration_version}"
 configuration_secure_version="{configuration_secure_version}"
+configuration_private_version="{configuration_private_version}"
 environment="{environment}"
 deployment="{deployment}"
 play="{play}"
@@ -201,6 +217,8 @@ git_repo_name="configuration"
 git_repo="https://github.com/edx/$git_repo_name"
 git_repo_secure="{configuration_secure_repo}"
 git_repo_secure_name="{configuration_secure_repo_basename}"
+git_repo_private="{configuration_private_repo}"
+git_repo_private_name=$(basename $git_repo_private .git)
 secure_vars_file="$base_dir/$git_repo_secure_name/{secure_vars}"
 instance_id=\\
 $(curl http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null)
@@ -208,7 +226,7 @@ instance_ip=\\
 $(curl http://169.254.169.254/latest/meta-data/local-ipv4 2>/dev/null)
 instance_type=\\
 $(curl http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null)
-playbook_dir="$base_dir/configuration/playbooks/edx-east"
+playbook_dir="$base_dir/{playbook_dir}"
 
 if $config_secure; then
     git_cmd="env GIT_SSH=$git_ssh git"
@@ -286,6 +304,14 @@ if $config_secure; then
     cd $base_dir
 fi
 
+if [[ ! -z $git_repo_private ]]; then
+    $git_cmd clone $git_repo_private $git_repo_private_name
+    cd $git_repo_private_name
+    $git_cmd checkout $configuration_private_version
+    cd $base_dir
+fi
+
+
 cd $base_dir/$git_repo_name
 sudo pip install -r requirements.txt
 
@@ -302,9 +328,12 @@ rm -rf $base_dir
                 configuration_secure_repo=args.configuration_secure_repo,
                 configuration_secure_repo_basename=os.path.basename(
                     args.configuration_secure_repo),
+                configuration_private_version=args.configuration_private_version,
+                configuration_private_repo=args.configuration_private_repo,
                 environment=args.environment,
                 deployment=args.deployment,
                 play=args.play,
+                playbook_dir=args.playbook_dir,
                 config_secure=config_secure,
                 identity_contents=identity_contents,
                 queue_name=run_id,
@@ -312,6 +341,10 @@ rm -rf $base_dir
                 git_refs_yml=git_refs_yml,
                 secure_vars=secure_vars,
                 cache_id=args.cache_id)
+
+    mapping = BlockDeviceMapping()
+    root_vol = BlockDeviceType(size=args.root_vol_size)
+    mapping['/dev/sda1'] = root_vol
 
     ec2_args = {
         'security_group_ids': [security_group_id],
@@ -321,7 +354,7 @@ rm -rf $base_dir
         'instance_type': args.instance_type,
         'instance_profile_name': args.role_name,
         'user_data': user_data,
-
+        'block_device_map': mapping,
     }
 
     return ec2_args
@@ -376,7 +409,7 @@ def poll_sqs_ansible():
         now = int(time.time())
         if buf:
             try:
-                if (now - max([msg['recv_ts'] for msg in buf])) > args.msg_delay:
+                if (now - min([msg['recv_ts'] for msg in buf])) > args.msg_delay:
                     # sort by TS instead of recv_ts
                     # because the sqs timestamp is not as
                     # accurate
