@@ -18,6 +18,7 @@ COMMON_CFG_DIR: "{{ COMMON_BASE_DIR }}/etc"
 COMMON_ENVIRONMENT: 'default_env'
 COMMON_DEPLOYMENT: 'default_deployment'
 COMMON_PYPI_MIRROR_URL: 'https://pypi.python.org/simple'
+COMMON_NPM_MIRROR_URL: 'http://registry.npmjs.org'
 # do not include http/https
 COMMON_GIT_MIRROR: 'github.com'
 # override this var to set a different hostname
@@ -30,18 +31,22 @@ COMMON_CUSTOM_DHCLIENT_CONFIG: false
 
 
 COMMON_MOTD_TEMPLATE: "motd.tail.j2"
+COMMON_SSH_PASSWORD_AUTH: "no"
 
-# These are two special accounts across all databases
+# These are three maintenance accounts across all databases
 # the read only user is is granted select privs on all dbs
 # the admin user is granted create user privs on all dbs
+# the migrate user is granted table alter privs on all dbs
 
 COMMON_MYSQL_READ_ONLY_USER: 'read_only'
-COMMON_MYSQL_READ_ONLY_PASS: 'password'
+COMMON_MYSQL_READ_ONLY_PASS: !!null
 COMMON_MYSQL_ADMIN_USER: 'admin'
-COMMON_MYSQL_ADMIN_PASS: 'password'
+COMMON_MYSQL_ADMIN_PASS: !!null
+COMMON_MYSQL_MIGRATE_USER: 'migrate'
+COMMON_MYSQL_MIGRATE_PASS: !!null
 
 COMMON_MONGO_READ_ONLY_USER: 'read_only'
-COMMON_MONGO_READ_ONLY_PASS: 'password'
+COMMON_MONGO_READ_ONLY_PASS: !!null
 
 common_debian_pkgs:
   - ntp
@@ -63,6 +68,7 @@ common_debian_pkgs:
 
 common_pip_pkgs:
   - pip==1.5.4
+  - setuptools==3.6
   - virtualenv==1.11.4
   - virtualenvwrapper
 
