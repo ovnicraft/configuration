@@ -3,6 +3,11 @@
 # to change the base directory
 # where edX is installed
 
+# Set global htpasswd credentials
+COMMON_ENABLE_BASIC_AUTH: True
+COMMON_HTPASSWD_USER: edx
+COMMON_HTPASSWD_PASS: edx
+
 COMMON_BASE_DIR: /edx
 COMMON_DATA_DIR: "{{ COMMON_BASE_DIR}}/var"
 COMMON_APP_DIR: "{{ COMMON_BASE_DIR}}/app"
@@ -47,7 +52,9 @@ COMMON_MYSQL_MIGRATE_PASS: !!null
 
 COMMON_MONGO_READ_ONLY_USER: 'read_only'
 COMMON_MONGO_READ_ONLY_PASS: !!null
-
+COMMON_ENABLE_DATADOG: False
+COMMON_ENABLE_SPLUNKFORWARDER: False
+COMMON_ENABLE_NEWRELIC: False
 common_debian_pkgs:
   - ntp
   - ack-grep
@@ -67,9 +74,9 @@ common_debian_pkgs:
   - curl
 
 common_pip_pkgs:
-  - pip==1.5.4
+  - pip==1.5.6
   - setuptools==3.6
-  - virtualenv==1.11.4
+  - virtualenv==1.11.6
   - virtualenvwrapper
 
 common_web_user: www-data

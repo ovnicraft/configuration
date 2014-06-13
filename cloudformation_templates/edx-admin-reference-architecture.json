@@ -230,7 +230,7 @@
           "Fn::FindInMap":[
             "MapRegionsToAvailZones",
             { "Ref":"AWS::Region" },
-            "AZone0"
+            "AZone1"
           ]
         },
         "Tags":[
@@ -252,7 +252,7 @@
           "Fn::FindInMap":[
             "MapRegionsToAvailZones",
             { "Ref":"AWS::Region" },
-            "AZone0"
+            "AZone1"
           ]
         },
         "Tags":[
@@ -411,13 +411,30 @@
         }
       }
     },
-    "InboundEmphemeralPublicNetworkAclEntry":{
+    "InboundSMTPPublicNetworkAclEntry":{
       "Type":"AWS::EC2::NetworkAclEntry",
       "Properties":{
         "NetworkAclId":{
           "Ref":"PublicNetworkAcl"
         },
         "RuleNumber":"103",
+        "Protocol":"6",
+        "RuleAction":"allow",
+        "Egress":"false",
+        "CidrBlock":"0.0.0.0/0",
+        "PortRange":{
+          "From":"587",
+          "To":"587"
+        }
+      }
+    },
+    "InboundEmphemeralPublicNetworkAclEntry":{
+      "Type":"AWS::EC2::NetworkAclEntry",
+      "Properties":{
+        "NetworkAclId":{
+          "Ref":"PublicNetworkAcl"
+        },
+        "RuleNumber":"104",
         "Protocol":"6",
         "RuleAction":"allow",
         "Egress":"false",
@@ -629,6 +646,12 @@
             "FromPort":"443",
             "ToPort":"443",
             "CidrIp":"0.0.0.0/0"
+          },
+          {
+            "IpProtocol":"tcp",
+            "FromPort":"587",
+            "ToPort":"587",
+            "CidrIp":"0.0.0.0/0"
           }
         ],
         "SecurityGroupEgress":[
@@ -650,6 +673,12 @@
             "IpProtocol":"tcp",
             "FromPort":"443",
             "ToPort":"443",
+            "CidrIp":"0.0.0.0/0"
+          },
+          {
+            "IpProtocol":"tcp",
+            "FromPort":"587",
+            "ToPort":"587",
             "CidrIp":"0.0.0.0/0"
           }
         ]
@@ -735,10 +764,11 @@
             "IpProtocol":"tcp",
             "FromPort":"22",
             "ToPort":"22",
-            "CidrIp":"10.0.0.0/16"
+            "CidrIp":"10.254.0.0/16"
           },
           {
             "IpProtocol":"tcp",
+            "FromPort":"80",
             "ToPort":"80",
             "CidrIp":"0.0.0.0/0"
           },
@@ -874,7 +904,23 @@
               ]
             ]
           }
-        }
+        },
+        "BlockDeviceMappings": [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs":{
+              "VolumeSize": 100
+            }
+          },
+          {
+            "DeviceName": "/dev/sdb",
+            "VirtualName": "ephemeral0"
+          },
+          {
+            "DeviceName": "/dev/sdc",
+            "VirtualName": "ephemeral1"
+          }
+        ]
       }
     },
     "AdminSecurityGroup":{
