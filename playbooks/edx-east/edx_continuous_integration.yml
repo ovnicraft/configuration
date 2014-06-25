@@ -16,6 +16,7 @@
       - xqueue
       - xserver
       - certs
+      - analytics-api
       nginx_default_sites:
       - lms
     - edxlocal
@@ -33,6 +34,7 @@
     - ora
     - certs
     - edx_ansible
+    - analytics-api
     - role: datadog
       when: COMMON_ENABLE_DATADOG
     - role: splunkforwarder
