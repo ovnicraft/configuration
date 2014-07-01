@@ -32,11 +32,9 @@ EDXAPP_MONGO_DB_NAME: 'edxapp'
 EDXAPP_MYSQL_DB_NAME: 'edxapp'
 EDXAPP_MYSQL_USER: 'edxapp001'
 EDXAPP_MYSQL_USER_ADMIN: 'root'
-EDXAPP_MYSQL_USER_MIGRATE: 'migrate'
 EDXAPP_MYSQL_PASSWORD: 'password'
 EDXAPP_MYSQL_PASSWORD_READ_ONLY: 'password'
 EDXAPP_MYSQL_PASSWORD_ADMIN: 'password'
-EDXAPP_MYSQL_PASSWORD_MIGRATE: 'password'
 EDXAPP_MYSQL_REPLICA_DB_NAME: "{{ EDXAPP_MYSQL_DB_NAME }}"
 EDXAPP_MYSQL_REPLICA_USER: "{{ EDXAPP_MYSQL_USER }}"
 EDXAPP_MYSQL_REPLICA_PASSWORD: "{{ EDXAPP_MYSQL_PASSWORD }}"
@@ -185,9 +183,6 @@ EDXAPP_USE_GIT_IDENTITY: false
 # into this var
 EDXAPP_GIT_IDENTITY: !!null
 
-# Configuration for database migration
-EDXAPP_TEST_MIGRATE_DB_NAME: "{{ COMMON_ENVIRONMENT }}_{{ COMMON_DEPLOYMENT }}_test_{{ EDXAPP_MYSQL_DB_NAME }}"
-
 EDXAPP_UPDATE_STATIC_FILES_KEY: false
 # Set this to true if you want to install the private pip
 # requirements in the edx-platform repo.
@@ -221,8 +216,10 @@ EDXAPP_XML_FROM_GIT: false
 EDXAPP_XML_S3_BUCKET: !!null
 EDXAPP_XML_S3_KEY: !!null
 
-EDXAPP_NEWRELIC_LMS_APPNAME: "edX-LMS"
-EDXAPP_NEWRELIC_CMS_APPNAME: "edX-CMS"
+EDXAPP_NEWRELIC_LMS_APPNAME: "{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}-edxapp-lms"
+EDXAPP_NEWRELIC_CMS_APPNAME: "{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}-edxapp-cms"
+
+EDXAPP_ORA2_FILE_PREFIX: '{{COMMON_ENVIRONMENT}}-{{COMMON_DEPLOYMENT}}/ora2'
 #-------- Everything below this line is internal to the role ------------
 
 #Use YAML references (& and *) and hash merge <<: to factor out shared settings
@@ -469,6 +466,8 @@ generic_env_config:  &edxapp_generic_env
   PRESS_EMAIL: $EDXAPP_PRESS_EMAIL
   PLATFORM_TWITTER_ACCOUNT: $EDXAPP_PLATFORM_TWITTER_ACCOUNT
   PLATFORM_FACEBOOK_ACCOUNT: $EDXAPP_PLATFORM_FACEBOOK_ACCOUNT
+  ORA2_FILE_PREFIX: $EDXAPP_ORA2_FILE_PREFIX
+
 
 lms_auth_config:
   <<: *edxapp_generic_auth
@@ -509,6 +508,8 @@ lms_env_config:
   <<: *edxapp_generic_env
   PAID_COURSE_REGISTRATION_CURRENCY: $EDXAPP_PAID_COURSE_REGISTRATION_CURRENCY
   SITE_NAME:  $EDXAPP_LMS_SITE_NAME
+  EDXAPP_VIDEO_CDN_URL:
+    CN: "http://example.com/edx/video?s3_url="
   CODE_JAIL:
     # from https://github.com/edx/codejail/blob/master/codejail/django_integration.py#L24, '' should be same as None
     python_bin: '{% if EDXAPP_PYTHON_SANDBOX %}{{ edxapp_sandbox_venv_dir }}/bin/python{% endif %}'
