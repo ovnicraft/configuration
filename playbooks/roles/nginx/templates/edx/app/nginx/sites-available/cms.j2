@@ -27,8 +27,10 @@ server {
   listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
   {% endif %}
 
+  
   #server_name {{ CMS_HOSTNAME }};
-  server_name beta.upex.edu.ec;
+
+  server_name beta.cms.upex.edu.ec;
 
   access_log {{ nginx_log_dir }}/access.log;
   error_log {{ nginx_log_dir }}/error.log error;
