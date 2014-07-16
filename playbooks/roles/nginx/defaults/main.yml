@@ -35,7 +35,8 @@ nginx_debian_pkgs:
   - nginx
   - python-passlib
 
-CMS_HOSTNAME: '~^((stage|prod)-)?studio.*'
+#CMS_HOSTNAME: '~^((stage|prod)-)?studio.*'
+CMS_HOSTNAME: 'beta.cms.upex.edu.ec'
 
 nginx_template_dir: "edx/app/nginx/sites-available"
 
