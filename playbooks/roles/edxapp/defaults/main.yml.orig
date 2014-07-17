@@ -16,19 +16,11 @@
 # when the edxapp config is written to disk.
 
 
-<<<<<<< HEAD
-EDXAPP_LMS_BASE: 'upex.iaen.edu.ec'
-EDXAPP_PREVIEW_LMS_BASE: 'upex.iaen.edu.ec'
-EDXAPP_CMS_BASE: 'cms.iaen.edu.ec'
+EDXAPP_LMS_BASE: 'upex.edu.ec'
+EDXAPP_PREVIEW_LMS_BASE: 'upex.edu.ec'
+EDXAPP_CMS_BASE: 'cms.upex.edu.ec'
 EDXAPP_AWS_ACCESS_KEY_ID:  ''
 EDXAPP_AWS_SECRET_ACCESS_KEY:  ''
-=======
-EDXAPP_LMS_BASE: ""
-EDXAPP_PREVIEW_LMS_BASE: ""
-EDXAPP_CMS_BASE: ""
-EDXAPP_AWS_ACCESS_KEY_ID:  ""
-EDXAPP_AWS_SECRET_ACCESS_KEY:  ""
->>>>>>> 5e027d939b03dab9233353c6450877a8cc975ff3
 EDXAPP_XQUEUE_BASIC_AUTH: [ "{{ COMMON_HTPASSWD_USER }}", "{{ COMMON_HTPASSWD_PASS }}" ]
 EDXAPP_XQUEUE_DJANGO_AUTH:
   username: 'lms'
@@ -82,11 +74,7 @@ EDXAPP_CELERY_BROKER_VHOST: ""
 EDXAPP_VIDEO_CDN_URLS:
   EXAMPLE_COUNTRY_CODE: "http://example.com/edx/video?s3_url="
 
-<<<<<<< HEAD
 EDXAPP_PLATFORM_NAME: 'UPEx'
-=======
-EDXAPP_PLATFORM_NAME: 'Your Platform Name Here'
->>>>>>> 5e027d939b03dab9233353c6450877a8cc975ff3
 
 EDXAPP_CAS_SERVER_URL: ""
 EDXAPP_CAS_EXTRA_LOGIN_PARAMS: ""
@@ -140,7 +128,6 @@ EDXAPP_LANG: 'es_EC.UTF-8'
 EDXAPP_TIME_ZONE: 'America/Guayaquil'
 EDXAPP_LANGUAGE_CODE : 'es'
 
-<<<<<<< HEAD
 EDXAPP_TECH_SUPPORT_EMAIL: 'upex-tech@iaen.edu.ec'
 EDXAPP_CONTACT_EMAIL: 'upex-contact@iaen.edu.ec'
 EDXAPP_BUGS_EMAIL: 'upex-bugs@iaen.edu.ec'
@@ -148,19 +135,10 @@ EDXAPP_DEFAULT_FROM_EMAIL: 'upex-contact@iaen.edu.ec'
 EDXAPP_DEFAULT_FEEDBACK_EMAIL: 'upex-contact@iaen.edu.ec'
 EDXAPP_DEFAULT_SERVER_EMAIL: 'upex-noreply@iaen.edu.ec'
 EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: 'upex-noreply@iaen.edu.ec'
-=======
-EDXAPP_TECH_SUPPORT_EMAIL: 'technical@example.com'
-EDXAPP_CONTACT_EMAIL: 'info@example.com'
-EDXAPP_BUGS_EMAIL: 'bugs@example.com'
-EDXAPP_DEFAULT_FROM_EMAIL: 'registration@example.com'
-EDXAPP_DEFAULT_FEEDBACK_EMAIL: 'feedback@example.com'
-EDXAPP_DEFAULT_SERVER_EMAIL: 'devops@example.com'
-EDXAPP_BULK_EMAIL_DEFAULT_FROM_EMAIL: 'no-reply@example.com'
-EDXAPP_UNIVERSITY_EMAIL: 'university@example.com'
-EDXAPP_PRESS_EMAIL: 'press@example.com'
-EDXAPP_PLATFORM_TWITTER_ACCOUNT: '@YourPlatformTwitterAccount'
-EDXAPP_PLATFORM_FACEBOOK_ACCOUNT: 'http://www.facebook.com/YourPlatformFacebookAccount'
->>>>>>> 5e027d939b03dab9233353c6450877a8cc975ff3
+EDXAPP_UNIVERSITY_EMAIL: 'infoiaen@iaen.edu.ec'
+EDXAPP_PRESS_EMAIL: 'infoiaen@iaen.edu.ec'
+EDXAPP_PLATFORM_TWITTER_ACCOUNT: '@upex_ec'
+EDXAPP_PLATFORM_FACEBOOK_ACCOUNT: 'https://www.facebook.com/upexec'
 
 EDXAPP_ENV_EXTRA: {}
 EDXAPP_AUTH_EXTRA: {}
