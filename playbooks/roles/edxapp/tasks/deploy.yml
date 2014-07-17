@@ -90,7 +90,7 @@
 # Ruby plays that need to be run after platform updates.
 - name: gem install bundler
   shell: >
-    gem install bundle
+    gem install bundler
       chdir={{ edxapp_code_dir }}
       executable=/bin/bash
   environment: "{{ edxapp_environment }}"
