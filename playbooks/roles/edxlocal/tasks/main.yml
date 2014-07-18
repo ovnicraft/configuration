@@ -19,6 +19,7 @@
     password={{ EDXAPP_MYSQL_PASSWORD }}
     priv='{{EDXAPP_MYSQL_DB_NAME}}.*:ALL'
     host='%'
+    login_host='10.0.3.200'
   when: EDXAPP_MYSQL_USER is defined
 
 - name: create a database for edxapp
@@ -34,6 +35,7 @@
     password={{ XQUEUE_MYSQL_PASSWORD }}
     priv='{{XQUEUE_MYSQL_DB_NAME}}.*:ALL'
     host='%'
+    login_host='10.0.3.200'
   when: XQUEUE_MYSQL_USER is defined
 
 - name: create a database for xqueue
@@ -49,6 +51,7 @@
     password={{ ORA_MYSQL_PASSWORD }}
     priv='{{ORA_MYSQL_DB_NAME}}.*:ALL'
     host='%'
+    login_host='10.0.3.200'
   when: ORA_MYSQL_USER is defined
 
 - name: create a database for ora
@@ -75,6 +78,7 @@
     password=password
     priv='{{ ANALYTICS_API_CONFIG['DATABASES']['default']['NAME'] }}.*:ALL/reports.*:SELECT'
     host='%'
+    login_host='10.0.3.200'
   when: ANALYTICS_API_CONFIG is defined
 
 - name: create read-only reports user for the analytics-api
@@ -83,6 +87,7 @@
     password=password
     priv='{{ ANALYTICS_API_CONFIG['DATABASES']['reports']['NAME'] }}.*:SELECT'
     host='%'
+    login_host='10.0.3.200'
   when: ANALYTICS_API_CONFIG is defined
 
 - name: setup the migration db user
@@ -92,6 +97,7 @@
     priv='{{ item }}.*:ALL'
     append_privs=yes
     host='%'
+    login_host='10.0.3.200'
   when: item != 'None'
   with_items:
     - "{{ EDXAPP_MYSQL_DB_NAME|default('None') }}"
@@ -105,6 +111,7 @@
     priv='{{ item }}.*:ALL'
     append_privs=yes
     host='%'
+    login_host='10.0.3.200'
   when: ANALYTICS_API_CONFIG is defined
   with_items:
     - "{{ ANALYTICS_API_CONFIG['DATABASES']['default']['NAME'] }}"
@@ -117,6 +124,7 @@
     password={{ COMMON_MYSQL_READ_ONLY_PASS }}
     priv='*.*:ALL'
     host='%'
+    login_host='10.0.3.200'
 
 - name: setup the admin db user
   mysql_user: >
@@ -124,6 +132,7 @@
     password={{ COMMON_MYSQL_ADMIN_PASS }}
     priv='*.*:CREATE USER'
     host='%'
+    login_host='10.0.3.200'
 
 
 - name: install memcached
