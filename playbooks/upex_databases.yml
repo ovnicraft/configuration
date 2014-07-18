@@ -5,7 +5,7 @@
 # installs
 
 - name: Configure UPEx databases
-  hosts: upexdbs
+  hosts: localhost
   sudo: True
   gather_facts: True
   vars:
