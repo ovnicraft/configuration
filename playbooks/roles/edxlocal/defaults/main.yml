@@ -6,7 +6,6 @@ edxlocal_debian_pkgs:
 
 # variables common to the lms role, automatically loaded
 # when the role is included
----
 
 # These are variables that default to a localhost
 # setup and are meant to be overwritten for
