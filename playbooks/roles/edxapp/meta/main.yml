@@ -15,3 +15,6 @@ dependencies:
         type: restricted
         authorized_keys: "{{ EDXAPP_AUTOMATOR_AUTHORIZED_KEYS }}"
     when: EDXAPP_AUTOMATOR_AUTHORIZED_KEYS|length != 0
+
+COMMON_MYSQL_MIGRATE_USER: "migrate"
+COMMON_MYSQL_MIGRATE_PASS: "password"
