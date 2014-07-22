@@ -1,6 +1,6 @@
 # Variables for nginx role
 ---
-NGINX_ENABLE_SSL: False
+NGINX_ENABLE_SSL: True
 # Set these to real paths on your
 # filesystem, otherwise nginx will
 # use a self-signed snake-oil cert
@@ -10,8 +10,8 @@ NGINX_ENABLE_SSL: False
 #
 # cat www.example.com.crt bundle.crt > www.example.com.chained.crt
 
-NGINX_SSL_CERTIFICATE: 'ssl-cert-snakeoil.pem'
-NGINX_SSL_KEY: 'ssl-cert-snakeoil.key'
+NGINX_SSL_CERTIFICATE: '/root/ssl/wildcard.upex.edu.ec.crt'
+NGINX_SSL_KEY: '/root/ssl/wildcard.upex.edu.ec.key'
 
 # When set to False, nginx will pass X-Forwarded-For, X-Forwarded-Port,
 # and X-Forwarded-Proto headers through to the backend unmodified.
@@ -20,7 +20,7 @@ NGINX_SSL_KEY: 'ssl-cert-snakeoil.key'
 # When there is no other load balancer in front of nginx, set this
 # variable to True to force nginx to set the values of the X-Forwarded-*
 # headers to reflect the properties of the incoming request.
-NGINX_SET_X_FORWARDED_HEADERS: False
+NGINX_SET_X_FORWARDED_HEADERS: True
 
 nginx_app_dir: "{{ COMMON_APP_DIR }}/nginx"
 nginx_data_dir: "{{ COMMON_DATA_DIR }}/nginx"
