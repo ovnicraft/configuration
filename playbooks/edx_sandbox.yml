@@ -19,7 +19,8 @@
     COMMON_ENABLE_DATADOG: False
     COMMON_ENABLE_SPLUNKFORWARDER: False
   roles:
-    - role: nginx, tags: [ 'nginx' ]
+    - role: nginx
+      tags: [ 'nginx' ]
       nginx_sites:
       - cms
       - lms
