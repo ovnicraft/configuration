@@ -28,9 +28,7 @@ server {
   {% endif %}
 
   
-  #server_name {{ CMS_HOSTNAME }};
-
-  server_name beta.cms.upex.edu.ec;
+  server_name {{ CMS_HOSTNAME }};
 
   access_log {{ nginx_log_dir }}/access.log;
   error_log {{ nginx_log_dir }}/error.log error;
