@@ -11,6 +11,13 @@ upstream cms-backend {
 }
 
 server {
+  listen 80;
+  server_name {{ CMS_HOSTNAME }};
+  rewrite ^ https://$server_name$request_uri? permanent;
+}
+
+
+server {
   # CMS configuration file for nginx, templated by ansible
 
   {% if NGINX_ENABLE_SSL %}
@@ -18,8 +25,7 @@ server {
   #listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
   #listen {{EDXAPP_CMS_SSL_NGINX_PORT}} ssl;
 
-  listen {{EDXAPP_LMS_NGINX_PORT}} {{default_site}};
-  listen {{EDXAPP_LMS_SSL_NGINX_PORT}} {{default_site}} ssl;
+  listen 443;
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
   ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
