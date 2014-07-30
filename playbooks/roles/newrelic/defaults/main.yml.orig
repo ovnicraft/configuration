@@ -16,9 +16,15 @@
 #
 newrelic_role_name: newrelic
 
+<<<<<<< HEAD
+NEWRELIC_REPO: 'deb http://apt.newrelic.com/debian/ newrelic non-free'
+NEWRELIC_KEY_ID: '6902aeeb82a1b2f121520be3d45291013a320689'
+NEWRELIC_KEY_URL: 'https://download.newrelic.com/{{ NEWRELIC_KEY_ID }}.gpg'
+=======
 NEWRELIC_DEBIAN_REPO: 'deb http://apt.newrelic.com/debian/ newrelic non-free'
 NEWRELIC_DEBIAN_KEY_ID: '548C16BF'
 NEWRELIC_DEBIAN_KEY_URL: 'https://download.newrelic.com/{{ NEWRELIC_DEBIAN_KEY_ID }}.gpg'
+>>>>>>> 9b0b71f7103552f0c0b81f97e72c4e0f08a8c3eb
 NEWRELIC_LICENSE_KEY: "SPECIFY_KEY_HERE"
 
 #

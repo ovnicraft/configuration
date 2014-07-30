@@ -16,11 +16,21 @@
 # when the edxapp config is written to disk.
 
 
+<<<<<<< HEAD
 EDXAPP_LMS_BASE: 'www.upex.edu.ec'
 EDXAPP_PREVIEW_LMS_BASE: 'www.upex.edu.ec'
 EDXAPP_CMS_BASE: 'cms.upex.edu.ec'
 EDXAPP_AWS_ACCESS_KEY_ID:  ''
 EDXAPP_AWS_SECRET_ACCESS_KEY:  ''
+=======
+EDXAPP_LMS_BASE: ""
+EDXAPP_PREVIEW_LMS_BASE: ""
+EDXAPP_CMS_BASE: ""
+# 'None' will be written out as null in
+# the configuration on disk
+EDXAPP_AWS_ACCESS_KEY_ID:  "None"
+EDXAPP_AWS_SECRET_ACCESS_KEY:  "None"
+>>>>>>> 9b0b71f7103552f0c0b81f97e72c4e0f08a8c3eb
 EDXAPP_XQUEUE_BASIC_AUTH: [ "{{ COMMON_HTPASSWD_USER }}", "{{ COMMON_HTPASSWD_PASS }}" ]
 EDXAPP_XQUEUE_DJANGO_AUTH:
   username: 'lms'
