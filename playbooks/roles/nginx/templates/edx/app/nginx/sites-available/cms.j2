@@ -11,6 +11,12 @@ upstream cms-backend {
 }
 
 server {
+  listen 80;
+  server_name {{ CMS_HOSTNAME }};
+  rewrite ^ https://$server_name$request_uri? permanent;
+}
+
+server {
   # CMS configuration file for nginx, templated by ansible
 
   {% if NGINX_ENABLE_SSL %}
