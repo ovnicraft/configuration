@@ -21,7 +21,7 @@
   roles:
     - edxlocal
     - mongo
-    - { role: 'rabbitmq', rabbitmq_ip: '10.0.3.200' }
+    - { role: 'rabbitmq', rabbitmq_ip: 'venus.upex.edu.ec' }
     - oraclejdk
     - elasticsearch
     - edx_ansible
