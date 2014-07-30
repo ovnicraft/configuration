@@ -37,7 +37,10 @@ nginx_debian_pkgs:
 
 #CMS_HOSTNAME: '~^((stage|prod)-)?studio.*'
 CMS_HOSTNAME: 'cms.upex.edu.ec'
+<<<<<<< HEAD
+=======
 LMS_HOSTNAME: 'www.upex.edu.ec'
+>>>>>>> newmaster
 
 nginx_template_dir: "edx/app/nginx/sites-available"
 

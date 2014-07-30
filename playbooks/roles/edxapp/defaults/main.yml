@@ -16,8 +16,8 @@
 # when the edxapp config is written to disk.
 
 
-EDXAPP_LMS_BASE: 'upex.edu.ec'
-EDXAPP_PREVIEW_LMS_BASE: 'upex.edu.ec'
+EDXAPP_LMS_BASE: 'www.upex.edu.ec'
+EDXAPP_PREVIEW_LMS_BASE: 'www.upex.edu.ec'
 EDXAPP_CMS_BASE: 'cms.upex.edu.ec'
 EDXAPP_AWS_ACCESS_KEY_ID:  ''
 EDXAPP_AWS_SECRET_ACCESS_KEY:  ''
