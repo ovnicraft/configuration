@@ -29,12 +29,14 @@
 # Do A Checkout
 - name: checkout edx-platform repo into {{edxapp_code_dir}}
   git: >
-    dest={{edxapp_code_dir}} repo={{edx_platform_repo}} version={{edx_platform_version}}
+    dest={{edxapp_code_dir}}
+    repo={{edx_platform_repo}}
+    version={{edx_platform_version}}
     accept_hostkey=yes
-  register: chkout
   sudo_user: "{{ edxapp_user }}"
   environment:
     GIT_SSH: "{{ edxapp_git_ssh }}"
+  register: edxapp_platform_checkout
   notify:
   - "restart edxapp"
   - "restart edxapp_workers"
@@ -48,12 +50,15 @@
 
 - name: checkout theme
   git: >
-    dest={{ edxapp_app_dir }}/themes/{{edxapp_theme_name}} repo={{edxapp_theme_source_repo}} version={{edxapp_theme_version}}
+    dest={{ edxapp_app_dir }}/themes/{{edxapp_theme_name}}
+    repo={{edxapp_theme_source_repo}}
+    version={{edxapp_theme_version}}
     accept_hostkey=yes
   when: edxapp_theme_name != ''
   sudo_user: "{{ edxapp_user }}"
   environment:
     GIT_SSH: "{{ edxapp_git_ssh }}"
+  register: edxapp_theme_checkout
   notify:
   - "restart edxapp"
   - "restart edxapp_workers"
@@ -85,7 +90,7 @@
 # Ruby plays that need to be run after platform updates.
 - name: gem install bundler
   shell: >
-    gem install bundle
+    gem install bundler
       chdir={{ edxapp_code_dir }}
       executable=/bin/bash
   environment: "{{ edxapp_environment }}"
@@ -248,33 +253,6 @@
   - "restart edxapp"
   - "restart edxapp_workers"
 
-# The next few tasks install xml courses.
-
-# Install the xml courses from an s3 bucket
-- name: get s3 one time url
-  s3: >
-    bucket="{{ EDXAPP_XML_S3_BUCKET }}"
-    object="{{ EDXAPP_XML_S3_KEY }}"
-    mode="geturl"
-    expiration=300
-  when: not EDXAPP_XML_FROM_GIT and EDXAPP_XML_S3_BUCKET and EDXAPP_XML_S3_KEY
-  register: s3_one_time_url
-
-- name: download from one time url
-  get_url: url="{{ s3_one_time_url.url }}" dest="/tmp/{{ EDXAPP_XML_S3_KEY|basename }}"
-  when: not EDXAPP_XML_FROM_GIT and EDXAPP_XML_S3_BUCKET and EDXAPP_XML_S3_KEY
-  register: download_xml_s3
-
-- name: unzip the data to the data dir
-  shell: >
-    tar xzf /tmp/{{ EDXAPP_XML_S3_KEY|basename }}
-    chdir="{{ edxapp_data_dir }}"
-  when: download_xml_s3.changed
-
-- include: xml.yml
-  tags: deploy
-  when: EDXAPP_XML_FROM_GIT
-
 # The next few tasks set up the python code sandbox
 
 # need to disable this profile, otherwise the pip inside the sandbox venv has no permissions
@@ -355,6 +333,32 @@
   - "restart edxapp"
   - "restart edxapp_workers"
 
+# The next few tasks install xml courses.
+
+# Install the xml courses from an s3 bucket
+- name: get s3 one time url
+  s3: >
+    bucket="{{ EDXAPP_XML_S3_BUCKET }}"
+    object="{{ EDXAPP_XML_S3_KEY }}"
+    mode="geturl"
+    expiration=30
+  when: not EDXAPP_XML_FROM_GIT and EDXAPP_XML_S3_BUCKET and EDXAPP_XML_S3_KEY
+  register: s3_one_time_url
+
+- name: download from one time url
+  get_url: 
+    url="{{ s3_one_time_url.url }}"
+    dest="{{ edxapp_data_dir }}/{{ EDXAPP_XML_S3_KEY|basename }}"
+    mode=0600
+  when: not EDXAPP_XML_FROM_GIT and EDXAPP_XML_S3_BUCKET and EDXAPP_XML_S3_KEY
+  register: download_xml_s3
+
+- name: unzip the data to the data dir
+  shell: >
+    tar xzf {{ edxapp_data_dir }}/{{ EDXAPP_XML_S3_KEY|basename }}
+    chdir="{{ edxapp_data_dir }}"
+  when: download_xml_s3.changed
+
 # creates the supervisor jobs for the
 # service variants configured, runs
 # gather_assets and db migrations
@@ -362,6 +366,10 @@
   tags:
     - service_variant_config
     - deploy
+
+- include: xml.yml
+  tags: deploy
+  when: EDXAPP_XML_FROM_GIT
 
   # call supervisorctl update. this reloads
   # the supervisorctl config and restarts
@@ -416,5 +424,8 @@
 - name: remove read-only ssh key
   file: path={{ edxapp_git_identity }} state=absent
   when: EDXAPP_USE_GIT_IDENTITY
+
+- include: tag_ec2.yml tags=deploy
+  when: COMMON_TAG_EC2_INSTANCE
 
 - set_fact: edxapp_installed=true

@@ -2,10 +2,14 @@
      satisfy any;
 
      allow 127.0.0.1;
-     deny all;
+     allow 181.112.216.98;
+     allow 200.10.150.169;
+     # revisar esto
+     allow all;
+     #deny all;
 
-     auth_basic            "Restricted";
-     auth_basic_user_file  {{ nginx_htpasswd_file }};
+     #auth_basic            "Restricted";
+     #auth_basic_user_file  {{ nginx_htpasswd_file }};
 
      index index.html
      proxy_set_header X-Forwarded-Proto https;
