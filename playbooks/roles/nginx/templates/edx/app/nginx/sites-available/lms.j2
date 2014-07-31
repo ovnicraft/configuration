@@ -37,7 +37,8 @@ server {
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
   {% else %}
-  listen {{EDXAPP_LMS_NGINX_PORT}} {{default_site}};
+  #listen {{EDXAPP_LMS_NGINX_PORT}} {{default_site}};
+  listen 81;
   {% endif %}
 
   access_log {{ nginx_log_dir }}/access.log;

@@ -1,6 +1,6 @@
 # Variables for nginx role
 ---
-NGINX_ENABLE_SSL: True
+NGINX_ENABLE_SSL: False
 # Set these to real paths on your
 # filesystem, otherwise nginx will
 # use a self-signed snake-oil cert
