@@ -12,6 +12,12 @@ upstream lms-backend {
 
 server {
   listen 80;
+  server_name upex.edu.ec;
+  rewrite ^ https://www.upex.edu.ec permament;
+}
+
+server {
+  listen 80;
   server_name {{ LMS_HOSTNAME }};
   rewrite ^ https://$server_name$request_uri? permanent;
 }
