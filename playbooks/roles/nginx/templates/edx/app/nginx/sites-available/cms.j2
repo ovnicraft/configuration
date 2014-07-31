@@ -21,7 +21,7 @@ server {
 
   {% if NGINX_ENABLE_SSL %}
 
-  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
+  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}} ssl;
   listen {{EDXAPP_CMS_SSL_NGINX_PORT}} ssl;
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
