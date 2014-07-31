@@ -30,7 +30,8 @@ server {
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
   {% else %}
-  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
+  #listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
+  listen 81;
   {% endif %}
   
   server_name {{ CMS_HOSTNAME }};
