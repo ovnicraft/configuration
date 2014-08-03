@@ -48,3 +48,7 @@
 - name: clean up var file, removing all version vars and internal ansible vars (anything not caps)
   shell: python -c "import yaml; y=yaml.load(open('{{ edx_ansible_var_file }}')); f=open('{{ edx_ansible_var_file }}', 'wb'); f.write(yaml.safe_dump({key:value for key,value in y.iteritems() if key.isupper()}, default_flow_style=False)); f.close();"
   when: EDX_ANSIBLE_DUMP_VARS
+
+- name: create the serve-vars file
+  template: dest={{ edx_ansible_app_dir }}/server-vars.yml
+  src=server-vars.yml owner={{ edx_ansible_user }} group={{ edx_ansible_user }} mode=644
