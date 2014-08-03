@@ -50,5 +50,5 @@
   when: EDX_ANSIBLE_DUMP_VARS
 
 - name: create the server-vars file
-  template: dest={{ edx_ansible_app_dir }}/server-vars.yml
-  src=server-vars.yml.j2 owner={{ edx_ansible_user }} group={{ edx_ansible_user }} mode=644
+  template: >
+    dest={{ edx_ansible_app_dir }}/server-vars.yml src=server-vars.yml.j2 owner={{ edx_ansible_user }} group={{ edx_ansible_user }} mode=644
