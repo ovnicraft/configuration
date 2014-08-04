@@ -16,26 +16,24 @@
 # when the edxapp config is written to disk.
 
 
-<<<<<<< HEAD
-EDXAPP_LMS_BASE: 'beta.upex.edu.ec'
-EDXAPP_PREVIEW_LMS_BASE: 'beta.upex.edu.ec'
-EDXAPP_CMS_BASE: 'beta.cms.upex.edu.ec'
+EDXAPP_LMS_BASE: 'www.upex.edu.ec'
+EDXAPP_PREVIEW_LMS_BASE: 'www.upex.edu.ec'
+EDXAPP_CMS_BASE: 'cms.upex.edu.ec'
 EDXAPP_AWS_ACCESS_KEY_ID:  ''
 EDXAPP_AWS_SECRET_ACCESS_KEY:  ''
-=======
-EDXAPP_LMS_BASE: ""
-EDXAPP_PREVIEW_LMS_BASE: ""
-EDXAPP_CMS_BASE: ""
-EDXAPP_AWS_ACCESS_KEY_ID:  ""
-EDXAPP_AWS_SECRET_ACCESS_KEY:  ""
->>>>>>> 5e027d939b03dab9233353c6450877a8cc975ff3
 EDXAPP_XQUEUE_BASIC_AUTH: [ "{{ COMMON_HTPASSWD_USER }}", "{{ COMMON_HTPASSWD_PASS }}" ]
 EDXAPP_XQUEUE_DJANGO_AUTH:
   username: 'lms'
   password: 'password'
 EDXAPP_XQUEUE_URL: 'http://localhost:18040'
 
+<<<<<<< HEAD
+supervisor_available_dir: '/edx/app/supervisor/conf.available.d'
+
 EDXAPP_MONGO_HOSTS: ['localhost']
+=======
+EDXAPP_MONGO_HOSTS: ['venus.upex.edu.ec']
+>>>>>>> production
 EDXAPP_MONGO_PASSWORD: 'password'
 EDXAPP_MONGO_PORT: 27017
 EDXAPP_MONGO_USER: 'edxapp'
@@ -53,14 +51,14 @@ EDXAPP_MYSQL_REPLICA_PASSWORD: "{{ EDXAPP_MYSQL_PASSWORD }}"
 EDXAPP_MYSQL_REPLICA_HOST: "{{ EDXAPP_MYSQL_HOST }}"
 EDXAPP_MYSQL_REPLICA_PORT: "{{ EDXAPP_MYSQL_PORT }}"
 
-EDXAPP_MYSQL_HOST: 'localhost'
+EDXAPP_MYSQL_HOST: 'venus.upex.edu.ec'
 EDXAPP_MYSQL_PORT: '3306'
 
 EDXAPP_EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
 
 EDXAPP_LOG_LEVEL: 'INFO'
 
-EDXAPP_MEMCACHE: [ 'localhost:11211' ]
+EDXAPP_MEMCACHE: [ 'venus.upex.edu.ec:11211' ]
 EDXAPP_COMMENTS_SERVICE_URL:  'http://localhost:18080'
 EDXAPP_COMMENTS_SERVICE_KEY:  'password'
 
@@ -93,7 +91,7 @@ EDXAPP_CAS_ATTRIBUTE_PACKAGE: ""
 EDXAPP_ENABLE_AUTO_AUTH: false
 # Settings for enabling and configuring third party authorization
 EDXAPP_ENABLE_THIRD_PARTY_AUTH: false
-EDXAPP_THIRD_PARTY_AUTH: !!null
+EDXAPP_THIRD_PARTY_AUTH: "None"
 
 EDXAPP_FEATURES:
   AUTH_USE_OPENID_PROVIDER: true
@@ -112,9 +110,9 @@ EDXAPP_BOOK_URL: ""
 # This needs to be set to localhost
 # if xqueue is run on the same server
 # as the lms (it's sent in the request)
-EDXAPP_SITE_NAME: 'localhost'
+EDXAPP_SITE_NAME: 'www.upex.edu.ec'
 EDXAPP_LMS_SITE_NAME: "{{ EDXAPP_SITE_NAME }}"
-EDXAPP_CMS_SITE_NAME: 'localhost'
+EDXAPP_CMS_SITE_NAME: 'cms.upex.edu.ec'
 EDXAPP_MEDIA_URL:  ""
 EDXAPP_ANALYTICS_SERVER_URL:  ""
 EDXAPP_FEEDBACK_SUBMISSION_EMAIL: ""
@@ -122,11 +120,11 @@ EDXAPP_CELERY_BROKER_HOSTNAME: ""
 EDXAPP_LOGGING_ENV:  'sandbox'
 
 EDXAPP_SYSLOG_SERVER: ""
-EDXAPP_RABBIT_HOSTNAME: 'localhost'
+EDXAPP_RABBIT_HOSTNAME: 'venus.upex.edu.ec'
 EDXAPP_XML_MAPPINGS: {}
 
 EDXAPP_LMS_NGINX_PORT: 18000
-EDXAPP_LMS_SSL_NGINX_PORT: 48000
+EDXAPP_LMS_SSL_NGINX_PORT: 443
 
 EDXAPP_LMS_PREVIEW_NGINX_PORT: 18020
 EDXAPP_CMS_NGINX_PORT: 18010
@@ -134,7 +132,7 @@ EDXAPP_CMS_SSL_NGINX_PORT: 48010
 
 EDXAPP_LANG: 'es_EC.UTF-8'
 EDXAPP_TIME_ZONE: 'America/Guayaquil'
-EDXAPP_LANGUAGE_CODE : 'es'
+EDXAPP_LANGUAGE_CODE: 'es-419'
 
 EDXAPP_TECH_SUPPORT_EMAIL: 'upex-tech@iaen.edu.ec'
 EDXAPP_CONTACT_EMAIL: 'upex-contact@iaen.edu.ec'
@@ -262,6 +260,14 @@ EDXAPP_CODE_JAIL_LIMITS:
 
 EDXAPP_VIRTUAL_UNIVERSITIES: []
 EDXAPP_SUBDOMAIN_BRANDING: {}
+# Set the number of workers explicitely for lms and cms
+# Should be set to
+# EDXAPP_WORKERS:
+#   lms: <num workers>
+#   cms: <num workers>
+EDXAPP_WORKERS: !!null
+EDXAPP_ANALYTICS_DATA_TOKEN: ""
+EDXAPP_ANALYTICS_DATA_URL: ""
 #-------- Everything below this line is internal to the role ------------
 
 #Use YAML references (& and *) and hash merge <<: to factor out shared settings
@@ -356,6 +362,7 @@ edxapp_environment:
 
 
 edxapp_generic_auth_config:  &edxapp_generic_auth
+  ANALYTICS_DATA_TOKEN: $EDXAPP_ANALYTICS_DATA_TOKEN
   AWS_ACCESS_KEY_ID:  $EDXAPP_AWS_ACCESS_KEY_ID
   AWS_SECRET_ACCESS_KEY: $EDXAPP_AWS_SECRET_ACCESS_KEY
   SECRET_KEY:  $EDXAPP_EDXAPP_SECRET_KEY
@@ -434,6 +441,7 @@ edxapp_generic_auth_config:  &edxapp_generic_auth
   THIRD_PARTY_AUTH: $EDXAPP_THIRD_PARTY_AUTH
 
 generic_env_config:  &edxapp_generic_env
+  ANALYTICS_DATA_URL: $EDXAPP_ANALYTICS_DATA_URL
   CELERY_BROKER_VHOST: $EDXAPP_CELERY_BROKER_VHOST
   PAYMENT_SUPPORT_EMAIL: $EDXAPP_PAYMENT_SUPPORT_EMAIL
   ZENDESK_URL: $EDXAPP_ZENDESK_URL
@@ -509,7 +517,7 @@ generic_env_config:  &edxapp_generic_env
   CAS_EXTRA_LOGIN_PARAMS: $EDXAPP_CAS_EXTRA_LOGIN_PARAMS
   CAS_ATTRIBUTE_CALLBACK: $EDXAPP_CAS_ATTRIBUTE_CALLBACK
   HOSTNAME_MODULESTORE_DEFAULT_MAPPINGS:
-    'preview\.': 'draft'
+    'preview\.': 'draft-preferred'
   UNIVERSITY_EMAIL: $EDXAPP_UNIVERSITY_EMAIL
   PRESS_EMAIL: $EDXAPP_PRESS_EMAIL
   PLATFORM_TWITTER_ACCOUNT: $EDXAPP_PLATFORM_TWITTER_ACCOUNT
@@ -616,7 +624,7 @@ edxapp_theme_version: 'master'
 edx_platform_repo: "https://{{ COMMON_GIT_MIRROR }}/iaen-edu/edx-platform.git"
 # `edx_platform_version` can be anything that git recognizes as a commit
 # reference, including a tag, a branch name, or a commit hash
-edx_platform_version: 'master'
+edx_platform_version: 'staging'
 local_requirements_file:  "{{ edxapp_code_dir }}/requirements/edx/local.txt"
 pre_requirements_file:    "{{ edxapp_code_dir }}/requirements/edx/pre.txt"
 post_requirements_file:   "{{ edxapp_code_dir }}/requirements/edx/post.txt"
@@ -644,7 +652,6 @@ edxapp_debian_pkgs:
   # libopenblas-base, it will cause
   # problems for numpy
   - gfortran
-  - libatlas3gf-base
   - liblapack-dev
   - g++
   - libxml2-dev

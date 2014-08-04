@@ -12,19 +12,25 @@ upstream lms-backend {
 
 server {
   listen 80;
-  server_name {{ LMS_HOSTNAME }};
-  rewrite ^ https://$server_name$request_uri? permanent;
+  server_name upex.edu.ec;
+  rewrite ^/(.*) https://www.upex.edu.ec/$1 permanent;
 }
+
+server {
+  listen 80;
+  server_name {{ LMS_HOSTNAME }};
+  rewrite ^/(.*) https://www.upex.edu.ec/$1 permanent;
+}
+
 
 server {
   # LMS configuration file for nginx, templated by ansible
 
   {% if NGINX_ENABLE_SSL %}
 
-  #listen {{EDXAPP_LMS_NGINX_PORT}} {{default_site}};
-  #listen {{EDXAPP_LMS_SSL_NGINX_PORT}} {{default_site}} ssl;
-
   listen 443 ssl;
+  listen {{EDXAPP_LMS_NGINX_PORT}} {{default_site}} ssl;
+  listen {{EDXAPP_LMS_SSL_NGINX_PORT}} {{default_site}} ssl;
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
   ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
@@ -32,7 +38,8 @@ server {
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
   {% else %}
-  listen {{EDXAPP_LMS_NGINX_PORT}} {{default_site}};
+  #listen {{EDXAPP_LMS_NGINX_PORT}} {{default_site}};
+  listen 81;
   {% endif %}
 
   server_name {{ LMS_HOSTNAME }};

@@ -13,19 +13,17 @@ upstream cms-backend {
 server {
   listen 80;
   server_name {{ CMS_HOSTNAME }};
-  rewrite ^ https://$server_name$request_uri? permanent;
+  rewrite ^/(.*) https://cms.upex.edu.ec/$1 permanent;
 }
-
 
 server {
   # CMS configuration file for nginx, templated by ansible
 
   {% if NGINX_ENABLE_SSL %}
 
-  #listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
-  #listen {{EDXAPP_CMS_SSL_NGINX_PORT}} ssl;
-
   listen 443 ssl;
+  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}} ssl;
+  listen {{EDXAPP_CMS_SSL_NGINX_PORT}} ssl;
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
   ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
@@ -33,9 +31,9 @@ server {
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
 
   {% else %}
-  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
+  #listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}};
+  listen 81;
   {% endif %}
-
   
   server_name {{ CMS_HOSTNAME }};
 

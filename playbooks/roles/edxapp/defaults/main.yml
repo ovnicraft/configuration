@@ -87,7 +87,7 @@ EDXAPP_CAS_ATTRIBUTE_PACKAGE: ""
 EDXAPP_ENABLE_AUTO_AUTH: false
 # Settings for enabling and configuring third party authorization
 EDXAPP_ENABLE_THIRD_PARTY_AUTH: false
-EDXAPP_THIRD_PARTY_AUTH: !!null
+EDXAPP_THIRD_PARTY_AUTH: "None"
 
 EDXAPP_FEATURES:
   AUTH_USE_OPENID_PROVIDER: true
@@ -106,9 +106,9 @@ EDXAPP_BOOK_URL: ""
 # This needs to be set to localhost
 # if xqueue is run on the same server
 # as the lms (it's sent in the request)
-EDXAPP_SITE_NAME: 'localhost'
+EDXAPP_SITE_NAME: 'beta.upex.edu.ec'
 EDXAPP_LMS_SITE_NAME: "{{ EDXAPP_SITE_NAME }}"
-EDXAPP_CMS_SITE_NAME: 'localhost'
+EDXAPP_CMS_SITE_NAME: 'beta.cms.upex.edu.ec'
 EDXAPP_MEDIA_URL:  ""
 EDXAPP_ANALYTICS_SERVER_URL:  ""
 EDXAPP_FEEDBACK_SUBMISSION_EMAIL: ""
@@ -128,7 +128,7 @@ EDXAPP_CMS_SSL_NGINX_PORT: 48010
 
 EDXAPP_LANG: 'es_EC.UTF-8'
 EDXAPP_TIME_ZONE: 'America/Guayaquil'
-EDXAPP_LANGUAGE_CODE : 'es'
+EDXAPP_LANGUAGE_CODE: 'es-419'
 
 EDXAPP_TECH_SUPPORT_EMAIL: 'upex-tech@iaen.edu.ec'
 EDXAPP_CONTACT_EMAIL: 'upex-contact@iaen.edu.ec'
@@ -256,6 +256,14 @@ EDXAPP_CODE_JAIL_LIMITS:
 
 EDXAPP_VIRTUAL_UNIVERSITIES: []
 EDXAPP_SUBDOMAIN_BRANDING: {}
+# Set the number of workers explicitely for lms and cms
+# Should be set to
+# EDXAPP_WORKERS:
+#   lms: <num workers>
+#   cms: <num workers>
+EDXAPP_WORKERS: !!null
+EDXAPP_ANALYTICS_DATA_TOKEN: ""
+EDXAPP_ANALYTICS_DATA_URL: ""
 #-------- Everything below this line is internal to the role ------------
 
 #Use YAML references (& and *) and hash merge <<: to factor out shared settings
@@ -350,6 +358,7 @@ edxapp_environment:
 
 
 edxapp_generic_auth_config:  &edxapp_generic_auth
+  ANALYTICS_DATA_TOKEN: $EDXAPP_ANALYTICS_DATA_TOKEN
   AWS_ACCESS_KEY_ID:  $EDXAPP_AWS_ACCESS_KEY_ID
   AWS_SECRET_ACCESS_KEY: $EDXAPP_AWS_SECRET_ACCESS_KEY
   SECRET_KEY:  $EDXAPP_EDXAPP_SECRET_KEY
@@ -428,6 +437,7 @@ edxapp_generic_auth_config:  &edxapp_generic_auth
   THIRD_PARTY_AUTH: $EDXAPP_THIRD_PARTY_AUTH
 
 generic_env_config:  &edxapp_generic_env
+  ANALYTICS_DATA_URL: $EDXAPP_ANALYTICS_DATA_URL
   CELERY_BROKER_VHOST: $EDXAPP_CELERY_BROKER_VHOST
   PAYMENT_SUPPORT_EMAIL: $EDXAPP_PAYMENT_SUPPORT_EMAIL
   ZENDESK_URL: $EDXAPP_ZENDESK_URL
@@ -503,7 +513,7 @@ generic_env_config:  &edxapp_generic_env
   CAS_EXTRA_LOGIN_PARAMS: $EDXAPP_CAS_EXTRA_LOGIN_PARAMS
   CAS_ATTRIBUTE_CALLBACK: $EDXAPP_CAS_ATTRIBUTE_CALLBACK
   HOSTNAME_MODULESTORE_DEFAULT_MAPPINGS:
-    'preview\.': 'draft'
+    'preview\.': 'draft-preferred'
   UNIVERSITY_EMAIL: $EDXAPP_UNIVERSITY_EMAIL
   PRESS_EMAIL: $EDXAPP_PRESS_EMAIL
   PLATFORM_TWITTER_ACCOUNT: $EDXAPP_PLATFORM_TWITTER_ACCOUNT
@@ -610,7 +620,7 @@ edxapp_theme_version: 'master'
 edx_platform_repo: "https://{{ COMMON_GIT_MIRROR }}/iaen-edu/edx-platform.git"
 # `edx_platform_version` can be anything that git recognizes as a commit
 # reference, including a tag, a branch name, or a commit hash
-edx_platform_version: 'master'
+edx_platform_version: 'staging'
 local_requirements_file:  "{{ edxapp_code_dir }}/requirements/edx/local.txt"
 pre_requirements_file:    "{{ edxapp_code_dir }}/requirements/edx/pre.txt"
 post_requirements_file:   "{{ edxapp_code_dir }}/requirements/edx/post.txt"
@@ -638,7 +648,6 @@ edxapp_debian_pkgs:
   # libopenblas-base, it will cause
   # problems for numpy
   - gfortran
-  - libatlas3gf-base
   - liblapack-dev
   - g++
   - libxml2-dev

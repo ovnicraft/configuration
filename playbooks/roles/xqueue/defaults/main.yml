@@ -22,15 +22,18 @@ XQUEUE_DJANGO_USERS:
   lms: 'password'
 XQUEUE_RABBITMQ_USER: 'edx'
 XQUEUE_RABBITMQ_PASS: 'edx'
-XQUEUE_RABBITMQ_HOSTNAME: 'localhost'
+XQUEUE_RABBITMQ_HOSTNAME: 'venus.upex.edu.ec'
 XQUEUE_LANG: 'en_US.UTF-8'
 
 XQUEUE_MYSQL_DB_NAME: 'xqueue'
 XQUEUE_MYSQL_USER: 'xqueue001'
-XQUEUE_MYSQL_PASSWORD: 'password'
-XQUEUE_MYSQL_HOST: 'localhost'
+XQUEUE_MYSQL_PASSWORD: 'xqueue001'
+XQUEUE_MYSQL_HOST: 'venus.upex.edu.ec'
 XQUEUE_MYSQL_PORT: '3306'
 XQUEUE_NEWRELIC_APPNAME: "{{ COMMON_ENVIRONMENT }}-{{ COMMON_DEPLOYMENT }}-xqueue"
+# Set the number of workers explicitely for xqueue
+XQUEUE_WORKERS: !!null
+XQUEUE_WORKERS_PER_QUEUE: 12
 
 # Internal vars below this line
 #############################################
@@ -51,7 +54,7 @@ xqueue_gunicorn_host: 127.0.0.1
 
 xqueue_env_config:
   XQUEUES: $XQUEUE_QUEUES
-  XQUEUE_WORKERS_PER_QUEUE: 12
+  XQUEUE_WORKERS_PER_QUEUE: $XQUEUE_WORKERS_PER_QUEUE
   LOGGING_ENV : $XQUEUE_LOGGING_ENV
   SYSLOG_SERVER: $XQUEUE_SYSLOG_SERVER
   LOG_DIR : "{{ COMMON_DATA_DIR }}/logs/xqueue"
