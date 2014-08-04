@@ -10,6 +10,7 @@ NGINX_ENABLE_SSL: True
 #
 # cat www.example.com.crt bundle.crt > www.example.com.chained.crt
 
+NGINX_SSL_CERTIFICATE: '/root/ssl/wildcard.upex.edu.ec.crt'
 NGINX_SSL_KEY: '/root/ssl/wildcard.upex.edu.ec.key'
 
 # When set to False, nginx will pass X-Forwarded-For, X-Forwarded-Port,
