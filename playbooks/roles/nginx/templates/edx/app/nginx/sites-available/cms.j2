@@ -22,9 +22,7 @@ server {
   {% if NGINX_ENABLE_SSL %}
 
   listen 443 ssl;
-  listen {{EDXAPP_CMS_NGINX_PORT}} {{default_site}} ssl;
-  listen {{EDXAPP_CMS_SSL_NGINX_PORT}} ssl;
-
+  
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
   ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
   # request the browser to use SSL for all connections
