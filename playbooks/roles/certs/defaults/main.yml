@@ -12,7 +12,7 @@
 #
 
 CERTS_QUEUE_URL: "http://localhost:18040"
-CERTS_BUCKET: ""
+CERTS_BUCKET: "certsupex"
 # basic auth credentials for connecting
 # to the xqueue server
 CERTS_XQUEUE_AUTH_USER: "{{ COMMON_HTPASSWD_USER }}"
@@ -21,8 +21,8 @@ CERTS_XQUEUE_AUTH_PASS: "{{ COMMON_HTPASSWD_PASS }}"
 CERTS_QUEUE_USER: "lms"
 CERTS_QUEUE_PASS: "password"
 # AWS credentials for certificate upload
-CERTS_AWS_KEY: ""
-CERTS_AWS_ID: ""
+CERTS_AWS_KEY: "qdETwaKglkwG0a01p/775pp5JRoX/DIwMhWhXgvl"
+CERTS_AWS_ID: "AKIAIXICH5AOJPE3BK5A"
 # GPG key ID, defaults to the dummy key
 CERTS_KEY_ID: "FEF8D954"
 # Contents of the identity for a private
@@ -44,7 +44,7 @@ CERTS_VERIFY_URL: "http://localhost:{{ CERTS_NGINX_PORT }}"
 # Set to false if using s3 or if you don't want certificates
 # copied to the web root
 CERTS_COPY_TO_WEB_ROOT: true
-CERTS_S3_UPLOAD: false
+CERTS_S3_UPLOAD: true
 
 # Can be set to a different repo for private
 # templates, fonts, etc.
