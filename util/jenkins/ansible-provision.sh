@@ -17,6 +17,7 @@
 # - dns_name
 # - environment
 # - name_tag
+set -x
 env
 export PYTHONUNBUFFERED=1
 export BOTO_CONFIG=/var/lib/jenkins/${aws_account}.boto
@@ -56,7 +57,7 @@ extra_var_arg="-e@${extra_vars_file}"
 if [[ $edx_internal == "true" ]]; then
     # if this is a an edx server include
     # the secret var file
-    extra_var_arg="-e@${extra_vars_file} -e@${WORKSPACE}/configuration-secure/ansible/vars/developer-sandbox.yml"
+    extra_var_arg="-e@${WORKSPACE}/configuration-secure/ansible/vars/developer-sandbox.yml -e@${extra_vars_file}"
 fi
 
 if [[ -z $region ]]; then
@@ -76,7 +77,7 @@ if [[ -z $elb ]]; then
 fi
 
 if [[ -z $dns_name ]]; then
-  dns_name=$github_username
+  dns_name=${github_username}
 fi
 
 if [[ -z $name_tag ]]; then
@@ -85,11 +86,11 @@ fi
 
 if [[ -z $ami ]]; then
   if [[ $server_type == "full_edx_installation" ]]; then
-    ami="ami-f287419a"
+    ami="ami-26cb5a4e"
   elif [[ $server_type == "ubuntu_12.04" || $server_type == "full_edx_installation_from_scratch" ]]; then
-    ami="ami-f478849c"
+    ami="ami-a217b2ca"
   elif [[ $server_type == "ubuntu_14.04(experimental)" ]]; then
-    ami="ami-a6926dce"
+    ami="ami-10389d78"
   fi
 fi
 
@@ -101,6 +102,9 @@ if [[ -z $enable_monitoring ]]; then
   enable_monitoring="false"
 fi
 
+# Lowercase the dns name to deal with an ansible bug
+dns_name="${dns_name,,}"
+
 deploy_host="${dns_name}.${dns_zone}"
 ssh-keygen -f "/var/lib/jenkins/.ssh/known_hosts" -R "$deploy_host"
 
@@ -111,6 +115,7 @@ cat << EOF > $extra_vars_file
 ansible_ssh_private_key_file: /var/lib/jenkins/${keypair}.pem
 edx_platform_version: $edxapp_version
 forum_version: $forum_version
+notifier_version: $notifier_version
 xqueue_version: $xqueue_version
 xserver_version: $xserver_version
 ora_version: $ora_version
@@ -166,13 +171,14 @@ COMMON_USER_INFO:
     github: true
     type: admin
 USER_CMD_PROMPT: '[$name_tag] '
-COMMON_ENABLE_NEWRELIC: $enable_monitoring
+COMMON_ENABLE_NEWRELIC_APP: $enable_monitoring
 COMMON_ENABLE_DATADOG: $enable_monitoring
 FORUM_NEW_RELIC_ENABLE: $enable_monitoring
 EDXAPP_NEWRELIC_LMS_APPNAME: sandbox-${dns_name}-edxapp-lms
 EDXAPP_NEWRELIC_CMS_APPNAME: sandbox-${dns_name}-edxapp-cms
 XQUEUE_NEWRELIC_APPNAME: sandbox-${dns_name}-xqueue
 FORUM_NEW_RELIC_APP_NAME: sandbox-${dns_name}-forums
+SANDBOX_USERNAME: $github_username
 EOF
 fi
 
@@ -216,7 +222,7 @@ EOF
 fi
 
 declare -A deploy
-roles="edxapp forum xqueue xserver ora discern certs demo"
+roles="edxapp forum notifier xqueue xserver ora discern certs demo testcourses"
 for role in $roles; do
     deploy[$role]=${!role}
 done

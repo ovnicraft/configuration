@@ -6,6 +6,7 @@ import hipchat
 import os
 import subprocess
 import traceback
+import socket
 
 # Services that should be checked for migrations.
 MIGRATION_COMMANDS = {
@@ -96,6 +97,16 @@ if __name__ == '__main__':
     instance_id = get_instance_metadata()['instance-id']
     prefix = instance_id
 
+
+    ec2 = boto.connect_ec2()
+    reservations = ec2.get_all_instances(instance_ids=[instance_id])
+    instance = reservations[0].instances[0]
+    if instance.instance_profile['arn'].endswith('/abbey'):
+        print("Running an abbey build. Not starting any services.")
+        # Needs to exit with 1 instead of 0 to prevent
+        # services from starting.
+        exit(1)
+
     try:
         environment, deployment, play = edp_for_instance(instance_id)
         prefix = "{environment}-{deployment}-{play}-{instance_id}".format(
@@ -103,6 +114,24 @@ if __name__ == '__main__':
             deployment=deployment,
             play=play,
             instance_id=instance_id)
+    except:
+        print("Failed to get EDP for {}".format(instance_id))
+
+    #get the hostname of the sandbox
+    hostname = socket.gethostname()
+
+    #get the list of the volumes, that are attached to the instance
+    volumes = ec2.get_all_volumes(filters={'attachment.instance-id': instance_id})
+
+    for volume in volumes:
+        volume.add_tags({"hostname": hostname,
+                         "environment": environment,
+                         "deployment": deployment,
+                         "cluster": play,
+                         "instance-id": instance_id,
+                         "created": volume.create_time })
+        
+    try:
         for service in services_for_instance(instance_id):
             if service in MIGRATION_COMMANDS:
                 # Do extra migration related stuff.
@@ -144,6 +173,7 @@ if __name__ == '__main__':
         print(msg)
         if notify:
             notify(msg)
+        traceback.print_exc()
     else:
         msg = "{}: {}".format(prefix, " | ".join(report))
         print(msg)

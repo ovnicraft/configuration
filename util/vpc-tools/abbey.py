@@ -18,7 +18,7 @@ except ImportError:
 
 from pprint import pprint
 
-AMI_TIMEOUT = 1800  # time to wait for AMIs to complete(30 minutes)
+AMI_TIMEOUT = 2700  # time to wait for AMIs to complete(45 minutes)
 EC2_RUN_TIMEOUT = 180  # time to wait for ec2 state transition
 EC2_STATUS_TIMEOUT = 300  # time to wait for ec2 system status checks
 NUM_TASKS = 5  # number of tasks for time summary report
@@ -117,6 +117,10 @@ def parse_args():
                         default=None,
                         help="The API ID of the Hipchat room to post"
                              "status messages to")
+    parser.add_argument("--ansible-hipchat-room-id", required=False,
+                        default='Hammer',
+                        help="The room used by the abbey instance for "
+                             "printing verbose ansible run data.")
     parser.add_argument("--hipchat-api-token", required=False,
                         default=None,
                         help="The API token for Hipchat integration")
@@ -183,6 +187,19 @@ def create_instance_args():
             'tag:aws:cloudformation:stack-name': stack_name,
             'tag:play': args.play}
     )
+
+    if len(subnet) < 1:
+        #
+        # try scheme for non-cloudformation builds
+        #
+
+        subnet = vpc.get_all_subnets(
+            filters={
+                'tag:cluster': args.play,
+                'tag:environment': args.environment,
+                'tag:deployment': args.deployment}
+        )
+
     if len(subnet) < 1:
         sys.stderr.write("ERROR: Expected at least one subnet, got {}\n".format(
             len(subnet)))
@@ -218,7 +235,7 @@ config_secure={config_secure}
 git_repo_name="configuration"
 git_repo="https://github.com/edx/$git_repo_name"
 git_repo_secure="{configuration_secure_repo}"
-git_repo_secure_name="{configuration_secure_repo_basename}"
+git_repo_secure_name=$(basename $git_repo_secure .git)
 git_repo_private="{configuration_private_repo}"
 git_repo_private_name=$(basename $git_repo_private .git)
 secure_vars_file={secure_vars_file}
@@ -346,12 +363,10 @@ rm -rf $base_dir
 
     """.format(
                 hipchat_token=args.hipchat_api_token,
-                hipchat_room=args.hipchat_room_id,
+                hipchat_room=args.ansible_hipchat_room_id,
                 configuration_version=args.configuration_version,
                 configuration_secure_version=args.configuration_secure_version,
                 configuration_secure_repo=args.configuration_secure_repo,
-                configuration_secure_repo_basename=os.path.basename(
-                    args.configuration_secure_repo),
                 configuration_private_version=args.configuration_private_version,
                 configuration_private_repo=args.configuration_private_repo,
                 environment=args.environment,
@@ -366,7 +381,9 @@ rm -rf $base_dir
                 cache_id=args.cache_id)
 
     mapping = BlockDeviceMapping()
-    root_vol = BlockDeviceType(size=args.root_vol_size)
+    root_vol = BlockDeviceType(size=args.root_vol_size,
+                               delete_on_termination=True,
+                               volume_type='gp2')
     mapping['/dev/sda1'] = root_vol
 
     ec2_args = {
