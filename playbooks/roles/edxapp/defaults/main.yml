@@ -18,12 +18,20 @@
 # Bucket used for xblock file storage
 EDXAPP_XBLOCK_FS_STORAGE_BUCKET: "None"
 EDXAPP_XBLOCK_FS_STORAGE_PREFIX: "None"
-EDXAPP_LMS_BASE: 'beta.upex.edu.ec'
-EDXAPP_PREVIEW_LMS_BASE: 'beta.upex.edu.ec'
-EDXAPP_CMS_BASE: 'beta.cms.upex.edu.ec'
+EDXAPP_DJFS:
+  type: 'osfs'
+  directory_root: '{{ edxapp_data_dir }}/django-pyfs/static/django-pyfs'
+  url_root : '/static/django-pyfs'
+
+EDXAPP_LMS_BASE: "beta.upex.edu.ec"
+EDXAPP_PREVIEW_LMS_BASE: "beta.upex.edu.ec"
+EDXAPP_CMS_BASE: "beta.cms.upex.edu.ec"
 
 EDXAPP_LMS_GUNICORN_EXTRA: ""
+EDXAPP_LMS_GUNICORN_EXTRA_CONF: ""
+
 EDXAPP_CMS_GUNICORN_EXTRA: ""
+EDXAPP_CMS_GUNICORN_EXTRA_CONF: ""
 
 # Set this to the maximum number
 # of requests for gunicorn for the lms and cms
@@ -113,6 +121,8 @@ EDXAPP_THIRD_PARTY_AUTH: {}
 EDXAPP_MODULESTORE_MAPPINGS:
     'preview\.': 'draft-preferred'
 
+EDXAPP_GIT_REPO_DIR: '/edx/var/edxapp/course_repos'
+
 EDXAPP_FEATURES:
   AUTH_USE_OPENID_PROVIDER: true
   CERTIFICATES_ENABLED: true
@@ -126,6 +136,7 @@ EDXAPP_FEATURES:
   ENABLE_MKTG_SITE: $EDXAPP_ENABLE_MKTG_SITE
   AUTOMATIC_AUTH_FOR_TESTING: $EDXAPP_ENABLE_AUTO_AUTH
   ENABLE_THIRD_PARTY_AUTH: $EDXAPP_ENABLE_THIRD_PARTY_AUTH
+  ENABLE_VIDEO_UPLOAD_PIPELINE: false
 
 EDXAPP_BOOK_URL: ""
 # This needs to be set to localhost
@@ -251,6 +262,17 @@ EDXAPP_UPDATE_STATIC_FILES_KEY: false
 
 EDXAPP_INSTALL_PRIVATE_REQUIREMENTS: false
 
+# List of additional python packages that should be installed into the
+# edxapp virtual environment.
+# `name` (required), `version` (optional), and `extra_args` (optional)
+# are supported and correspond to the options of ansible's pip module.
+# Example:
+# EDXAPP_EXTRA_REQUIREMENTS:
+#   - name: mypackage
+#     version: 1.0.1
+#   - name: git+https://git.myproject.org/MyProject#egg=MyProject
+EDXAPP_EXTRA_REQUIREMENTS: []
+
 EDXAPP_GOOGLE_ANALYTICS_ACCOUNT: "None"
 
 EDXAPP_PEARSON_TEST_PASSWORD: ""
@@ -292,7 +314,6 @@ EDXAPP_ORA2_FILE_PREFIX: '{{ COMMON_ENVIRONMENT }}-{{ COMMON_DEPLOYMENT }}/ora2'
 EDXAPP_FILE_UPLOAD_STORAGE_BUCKET_NAME: '{{ EDXAPP_AWS_STORAGE_BUCKET_NAME }}'
 EDXAPP_FILE_UPLOAD_STORAGE_PREFIX: 'submissions_attachments'
 
-
 EDXAPP_CODE_JAIL_LIMITS:
   # Limit the memory of the jailed process to something high but not
   # infinite (512MiB in bytes)
@@ -301,6 +322,7 @@ EDXAPP_CODE_JAIL_LIMITS:
   REALTIME: 3
   # Needs to be non-zero so that jailed code can use it as their temp directory.(1MiB in bytes)
   FSIZE: 1048576
+  CPU: 1
 
 EDXAPP_VIRTUAL_UNIVERSITIES: []
 EDXAPP_SUBDOMAIN_BRANDING: {}
@@ -349,6 +371,16 @@ EDXAPP_CELERY_WORKERS:
     concurrency: 2
 
 EDXAPP_DEFAULT_CACHE_VERSION: "1"
+EDXAPP_OAUTH_ENFORCE_SECURE: True
+
+# Directory for edxapp application configuration files
+EDXAPP_CFG_DIR: "{{ COMMON_CFG_DIR }}/edxapp"
+EDXAPP_DEPRECATED_ADVANCED_COMPONENT_TYPES: []
+
+# Video Pipeline Settings
+EDXAPP_VIDEO_UPLOAD_PIPELINE:
+  BUCKET: ''
+  ROOT_PATH: ''
 
 #-------- Everything below this line is internal to the role ------------
 
@@ -416,6 +448,12 @@ edxapp_all_req_files:
 
 # TODO: old style variable syntax is necessary
 # for lists and dictionaries
+edxapp_helper_scripts:
+    - edxapp-migrate
+    - edxapp-runserver
+    - edxapp-syncdb
+    - edxapp-update-assets
+    - edxapp-shell
 
 edxapp_environment:
   LANG: "{{ EDXAPP_LANG }}"
@@ -425,7 +463,14 @@ edxapp_environment:
   GEM_HOME: "{{ edxapp_gem_root }}"
   GEM_PATH: "{{ edxapp_gem_root }}"
   PATH: "{{ edxapp_deploy_path }}"
-
+  # the settings module for edxapp, DJANGO_SETTINGS_MODULE
+  # should be set to ${SERVICE_VARIANT}.${EDXAPP_SETTINGS}
+  # where SERVICE_VARIANT is lms or cms
+  EDX_PLATFORM_SETTINGS: aws
+  # Current set to the app dir for json config, this should
+  # be updated to /edx/etc/edxapp when the switch to
+  # yaml based configs is complete
+  CONFIG_ROOT: "{{ edxapp_app_dir }}"
 
 edxapp_generic_auth_config:  &edxapp_generic_auth
   ANALYTICS_DATA_TOKEN: "{{ EDXAPP_ANALYTICS_DATA_TOKEN }}"
@@ -517,6 +562,7 @@ edxapp_generic_auth_config:  &edxapp_generic_auth
   GOOGLE_ANALYTICS_ACCOUNT: "{{ EDXAPP_GOOGLE_ANALYTICS_ACCOUNT }}"
   THIRD_PARTY_AUTH: "{{ EDXAPP_THIRD_PARTY_AUTH }}"
   AWS_STORAGE_BUCKET_NAME: "{{ EDXAPP_AWS_STORAGE_BUCKET_NAME }}"
+  DJFS: $EDXAPP_DJFS
 
 generic_cache_config: &default_generic_cache
   BACKEND:  'django.core.cache.backends.memcached.MemcachedCache'
@@ -525,6 +571,8 @@ generic_cache_config: &default_generic_cache
   LOCATION: "{{ EDXAPP_MEMCACHE }}"
 
 generic_env_config:  &edxapp_generic_env
+  VIDEO_UPLOAD_PIPELINE: "{{ EDXAPP_VIDEO_UPLOAD_PIPELINE }}"
+  DEPRECATED_ADVANCED_COMPONENT_TYPES: "{{ EDXAPP_DEPRECATED_ADVANCED_COMPONENT_TYPES }}"
   OAUTH_OIDC_ISSUER: "https://{{ EDXAPP_LMS_BASE }}/oauth2"
   XBLOCK_FS_STORAGE_BUCKET: "{{ EDXAPP_XBLOCK_FS_STORAGE_BUCKET }}"
   XBLOCK_FS_STORAGE_PREFIX: "{{ EDXAPP_XBLOCK_FS_STORAGE_PREFIX }}"
@@ -636,7 +684,9 @@ lms_auth_config:
 
 lms_env_config:
   <<: *edxapp_generic_env
+  OAUTH_ENFORCE_SECURE: $EDXAPP_OAUTH_ENFORCE_SECURE
   PAID_COURSE_REGISTRATION_CURRENCY: $EDXAPP_PAID_COURSE_REGISTRATION_CURRENCY
+  GIT_REPO_DIR: "{{ EDXAPP_GIT_REPO_DIR }}"
   SITE_NAME:  "{{ EDXAPP_LMS_SITE_NAME }}"
   VIDEO_CDN_URL: "{{ EDXAPP_VIDEO_CDN_URLS }}"
   CODE_JAIL:

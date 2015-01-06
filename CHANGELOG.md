@@ -1,3 +1,19 @@
+- Role: gitreload
+  - New role added for running
+    [gitreload](https://github.com/mitodl/gitreload) that can be used
+    for importing courses via github/gitlab Web hooks, or more
+    generally updating any git repository that is already checked out
+    on disk via a hook.
+
+- Role: analytics-api, edxapp, ora, xqueue, xserver
+  - Switched gunicorn from using an entirely command argument based
+    configuration to usign python configuration files. Variables for
+    extra configuration in the configuration file template, and
+    command line argument overrides are available.
+
+- Role: analytics-api, insights
+  - Using Django 1.7 migrate command.
+
 - Role: edxapp
   - A new var was added to make it easy ot invalidate the default
     memcache store to make it easier to invalidate sessions. Updating

@@ -7,6 +7,14 @@
     owner={{ edxapp_user }}  group={{ common_web_user }}
     mode=0644
 
+- name: create edxapp configuration dir
+  file: >
+    path="{{ EDXAPP_CFG_DIR }}" state=directory
+    owner="{{ edxapp_user }}" group="{{ common_web_group }}"
+  notify:
+  - "restart edxapp"
+  - "restart edxapp_workers"
+
 # Optional auth for git
 - name: create ssh script for git (not authenticated)
   template: >
@@ -248,6 +256,20 @@
   environment:
     GIT_SSH: "{{ edxapp_git_ssh }}"
   when: EDXAPP_INSTALL_PRIVATE_REQUIREMENTS
+  notify:
+  - "restart edxapp"
+  - "restart edxapp_workers"
+
+# Install any custom extra requirements if defined in EDXAPP_EXTRA_REQUIREMENTS.
+- name: install python extra requirements
+  pip: >
+    name="{{ item.name }}"
+    {% if 'version' in item %}version="{{ item.version }}"{% endif %}
+    extra_args="--exists-action w --use-mirrors {{ item.extra_args|default('') }}"
+    virtualenv="{{ edxapp_venv_dir }}"
+    state=present
+  with_items: EDXAPP_EXTRA_REQUIREMENTS
+  sudo_user: "{{ edxapp_user }}"
   notify:
   - "restart edxapp"
   - "restart edxapp_workers"

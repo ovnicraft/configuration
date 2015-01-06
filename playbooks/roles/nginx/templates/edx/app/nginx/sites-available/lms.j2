@@ -25,8 +25,22 @@ server {
 server {
   # LMS configuration file for nginx, templated by ansible
 
-  # 500 error pages
-  error_page 500 502 504 /server/server-error.html;
+  {% if NGINX_EDXAPP_ENABLE_S3_MAINTENANCE %}
+
+  # Do not include a 502 error in NGINX_ERROR_PAGES when 
+  # NGINX_EDXAPP_ENABLE_MAINTENANCE is enabled.
+
+  error_page 502 @maintenance;
+
+    {% include "s3_maintenance.j2" %}
+  
+  {% endif %}
+
+  # error pages
+  {% for k, v in NGINX_EDXAPP_ERROR_PAGES.iteritems() %}
+error_page {{ k }} {{ v }};
+  {% endfor %}
+
 
   {% if NGINX_ENABLE_SSL %}
 
@@ -76,6 +90,13 @@ server {
   }
   # No basic auth for /segmentio/event
   location /segmentio/event {
+    try_files $uri @proxy_to_lms_app;
+  }
+
+  # The api is accessed using OAUTH2 which
+  # uses the authorization header so we can't have
+  # basic auth on it as well.
+  location /api {
     try_files $uri @proxy_to_lms_app;
   }
 
